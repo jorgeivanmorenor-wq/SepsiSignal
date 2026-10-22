@@ -3,488 +3,410 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b1827">
-<title>SepsiSignal — Reconocimiento temprano</title>
+<meta name="theme-color" content="#173247">
+<meta name="description" content="Prototipo académico para estructurar la identificación temprana de señales de alarma relacionadas con posible sepsis en adultos.">
+<title>SepsiSignal | Evaluación temprana</title>
 <style>
-  :root{
-    --ink:#142235;--muted:#637489;--paper:#f4f7fa;--white:#fff;--navy:#0b1827;--navy2:#10263a;
-    --teal:#40dbc2;--teal-dark:#008f84;--line:#e1e8ee;--soft:#edf7f6;--blue:#eaf3ff;
-    --red:#c63e4b;--red-bg:#fff0f0;--amber:#a65d04;--amber-bg:#fff5e4;--green:#14775d;--green-bg:#eaf8f1;
-    --radius:18px;--shadow:0 18px 50px rgba(21,44,66,.08)
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
-  button,input,select,textarea{font:inherit}
-  button{cursor:pointer}
-  a{color:inherit}
-  .app{min-height:100vh;display:grid;grid-template-columns:246px minmax(0,1fr)}
-  .sidebar{background:linear-gradient(180deg,var(--navy),#112a3b);color:#e9f0f6;padding:25px 17px;display:flex;flex-direction:column;gap:28px;position:sticky;top:0;height:100vh}
-  .brand{display:flex;align-items:center;gap:11px;padding:2px 7px}
-  .brand-mark{width:39px;height:39px;border-radius:13px;background:var(--teal);display:grid;place-items:center;color:#09212a;box-shadow:0 0 0 6px rgba(64,219,194,.1)}
-  .brand-mark svg{width:23px;height:23px}
-  .brand-name{font-size:17px;font-weight:800;letter-spacing:-.5px}.brand-sub{display:block;font-size:10px;color:#9cb3c2;letter-spacing:1.8px;text-transform:uppercase;font-weight:700;margin-top:1px}
-  .nav-label{font-size:10px;color:#8097a7;text-transform:uppercase;letter-spacing:1.7px;font-weight:800;padding:0 12px;margin-bottom:8px}
-  .nav-item{display:flex;align-items:center;gap:11px;color:#bfd0da;padding:11px 12px;border-radius:11px;font-size:13px;margin:3px 0;cursor:pointer;outline-offset:2px}.nav-item:focus-visible{outline:2px solid var(--teal)}
-  .nav-item svg{width:17px;height:17px;opacity:.82}.nav-item.active{background:rgba(64,219,194,.13);color:#66ead5;box-shadow:inset 3px 0 0 var(--teal)}
-  .side-note{margin-top:auto;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);padding:15px;border-radius:14px;color:#b3c6d2;font-size:11px}
-  .side-note strong{display:block;color:#fff;font-size:12px;margin:0 0 5px}.side-note .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffce73;margin-right:6px}
-  .side-footer{font-size:10px;color:#8197a6;padding:0 10px}
-  main{min-width:0;padding:27px clamp(18px,3vw,42px) 50px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:25px}
-  .crumb{font-size:12px;color:var(--muted)}.crumb b{color:var(--ink);font-weight:700}
-  .top-actions{display:flex;align-items:center;gap:10px}
-  .demo-tag{display:flex;align-items:center;gap:7px;border:1px solid #dce5eb;background:#fff;padding:8px 12px;border-radius:999px;font-size:11px;color:#637489;font-weight:700}
-  .demo-tag span{width:7px;height:7px;border-radius:50%;background:#e3a340}
-  .avatar{width:34px;height:34px;border-radius:11px;background:#dff7f3;color:#07796f;font-size:12px;font-weight:800;display:grid;place-items:center}
-  .hero{position:relative;overflow:hidden;background:linear-gradient(116deg,#0b1a2a 3%,#13364a 70%,#125e60);border-radius:23px;color:white;padding:29px 31px;margin-bottom:23px;box-shadow:0 16px 36px rgba(9,31,50,.15)}
-  .hero:after{content:"";position:absolute;right:-62px;top:-156px;width:360px;height:360px;border-radius:50%;border:1px solid rgba(70,230,202,.18);box-shadow:0 0 0 28px rgba(70,230,202,.035),0 0 0 60px rgba(70,230,202,.025)}
-  .hero:before{content:"";position:absolute;right:112px;bottom:-220px;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle,rgba(64,219,194,.19),transparent 67%)}
-  .hero-inner{position:relative;z-index:1;max-width:760px}
-  .eyebrow{display:flex;align-items:center;gap:8px;color:#7eead8;text-transform:uppercase;letter-spacing:1.7px;font-size:10px;font-weight:800;margin-bottom:12px}
-  .eyebrow i{width:22px;height:1px;background:currentColor}
-  h1{font-size:clamp(25px,3.2vw,37px);line-height:1.1;letter-spacing:-1.2px;margin:0 0 12px;font-weight:800}
-  .hero p{max-width:690px;margin:0;color:#c4d7e1;font-size:13px;line-height:1.7}
-  .hero-bottom{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:21px}
-  .hero-pill{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.1);border-radius:999px;font-size:10px;color:#d7e7ee}
-  .hero-pill svg{width:14px;height:14px;color:var(--teal)}
-  .alert-strip{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;background:#fff9ec;border:1px solid #f5dfb6;border-radius:13px;margin-bottom:24px;color:#725020;font-size:11px}
-  .alert-strip svg{flex:0 0 18px;width:18px;height:18px;margin-top:1px}.alert-strip strong{color:#4c3211}
-  .layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(285px,.8fr);gap:22px;align-items:start}
-  .panel{background:#fff;border:1px solid #e7edf1;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;min-width:0}
-  .panel-head{padding:20px 22px 16px;border-bottom:1px solid #edf1f4;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-  .panel-head h2{font-size:16px;line-height:1.25;letter-spacing:-.3px;margin:0 0 5px}.panel-head p{margin:0;color:var(--muted);font-size:11px}
-  .step-badge{font-size:10px;font-weight:800;color:#087e73;background:#e2f8f4;border-radius:7px;padding:6px 9px;white-space:nowrap}
-  .form-body{padding:20px 22px 23px}
-  .section-title{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:12px;font-weight:800;color:#2d4257}
-  .section-number{width:25px;height:25px;border-radius:8px;background:#e5f8f5;color:#0a897d;display:grid;place-items:center;font-size:11px;font-weight:900}
-  .section-sub{color:#7b8da0;font-size:10px;font-weight:600;margin-left:auto}
-  .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 13px;margin-bottom:24px}
-  .field{min-width:0}.field.full{grid-column:1/-1}
-  label,.label{display:block;color:#35485b;font-size:11px;font-weight:750;margin-bottom:7px}
-  .optional{color:#91a0af;font-size:10px;font-weight:500;margin-left:4px}
-  input[type=text],input[type=number],select,textarea{width:100%;border:1px solid #dce5eb;background:#fbfcfd;border-radius:10px;padding:10px 11px;color:#1d3042;font-size:12px;outline:none;transition:border .15s,box-shadow .15s}
-  input:focus,select:focus,textarea:focus{border-color:#3dbfac;box-shadow:0 0 0 3px rgba(61,191,172,.13)}
-  input::placeholder{color:#a5b1bd}
-  .input-wrap{position:relative}.unit{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#95a3b1;font-size:10px;pointer-events:none}.input-wrap input{padding-right:43px}
-  .radio-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .radio-card{position:relative}.radio-card input{position:absolute;opacity:0;width:1px;height:1px}
-  .radio-card label{display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;min-height:42px;padding:8px;border:1px solid #dce5eb;background:#fbfcfd;border-radius:10px;color:#576b7e;cursor:pointer;margin:0;font-size:11px;font-weight:700}
-  .radio-card input:checked+label{border-color:#36b9a7;background:#eaf9f6;color:#06776b;box-shadow:inset 0 0 0 1px #36b9a7}
-  .radio-card label:before{content:"";width:8px;height:8px;border-radius:50%;border:1.5px solid #a2b2bf;flex:0 0 auto}.radio-card input:checked+label:before{border:3px solid #09988a;background:white}
-  .checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .check{display:flex;align-items:flex-start;gap:9px;padding:10px 11px;background:#fbfcfd;border:1px solid #e3eaf0;border-radius:10px;min-height:58px;cursor:pointer}
-  .check input{accent-color:#149e90;margin:2px 0 0;flex:0 0 auto;width:14px;height:14px}
-  .check span{font-size:11px;font-weight:650;color:#41566a;line-height:1.4}.check small{display:block;color:#8796a5;font-size:9px;font-weight:500;margin-top:3px}
-  .divider{height:1px;background:#edf1f4;margin:21px 0}
-  .actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:10px;padding:11px 15px;border:1px solid transparent;font-size:11px;font-weight:800;transition:transform .15s,background .15s;white-space:nowrap}
-  .btn:hover{transform:translateY(-1px)}.btn svg{width:15px;height:15px}
-  .btn-primary{background:#0c857b;color:white;box-shadow:0 5px 14px rgba(12,133,123,.2)}.btn-primary:hover{background:#086e66}
-  .btn-secondary{background:#fff;border-color:#dbe5eb;color:#4d6274}.btn-light{background:#e8f9f5;color:#087e73}
-  .microcopy{font-size:9px;line-height:1.6;color:#8b99a6;margin:12px 0 0}
-  .results-sticky{position:sticky;top:20px;display:flex;flex-direction:column;gap:16px}
-  .result-card{background:#fff;border:1px solid #e5edf1;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-  .result-top{padding:20px 20px 18px;background:linear-gradient(120deg,#f8fbfd,#f1f8f7);border-bottom:1px solid #e5eeef}
-  .result-label{display:flex;align-items:center;gap:7px;color:#788b9b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.25px}
-  .result-dot{width:8px;height:8px;border-radius:50%;background:#aab7c2}
-  .result-title{font-size:22px;font-weight:850;letter-spacing:-.7px;margin:13px 0 7px;line-height:1.1;color:#23384b}
-  .result-desc{font-size:11px;color:#64798a;line-height:1.65;margin:0}
-  .result-content{padding:18px 20px 20px}
-  .result-empty{display:grid;place-items:center;text-align:center;min-height:155px;color:#8b9baa}
-  .result-empty .radar{width:60px;height:60px;border:1px solid #c9e8e3;border-radius:50%;display:grid;place-items:center;margin-bottom:12px;background:radial-gradient(circle,#e5faf6 0,#f8fcfc 70%);position:relative}
-  .result-empty .radar:before,.result-empty .radar:after{content:"";position:absolute;border:1px solid #d8efec;border-radius:50%;width:42px;height:42px}.result-empty .radar:after{width:25px;height:25px;background:#d9f6f0}
-  .radar svg{width:21px;height:21px;position:relative;z-index:1;color:#0a9285}
-  .result-empty strong{color:#536b7b;font-size:12px;display:block;margin-bottom:5px}.result-empty p{font-size:10px;margin:0;max-width:210px;line-height:1.6}
-  .result-status{padding:13px;border-radius:11px;margin-bottom:16px}.result-status h3{font-size:12px;margin:0 0 5px}.result-status p{font-size:10px;margin:0;line-height:1.6}
-  .result-status.red{background:var(--red-bg);color:#8d2430;border:1px solid #f7cfd2}.result-status.amber{background:var(--amber-bg);color:#81500e;border:1px solid #f6dfb2}.result-status.green{background:var(--green-bg);color:#166348;border:1px solid #caedda}.result-status.neutral{background:#f0f5f8;color:#50697b;border:1px solid #dce7ed}
-  .reason-heading{font-size:10px;font-weight:850;color:#4b6071;text-transform:uppercase;letter-spacing:1px;margin:16px 0 9px}
-  .reason-list{display:flex;flex-direction:column;gap:8px}.reason{display:flex;gap:8px;align-items:flex-start;font-size:10px;color:#52697b;line-height:1.45}.reason-mark{width:17px;height:17px;border-radius:6px;display:grid;place-items:center;background:#edf3f6;color:#5c7284;font-size:10px;flex:0 0 auto;font-weight:900}.reason-mark.red{background:#ffe0e2;color:#ba3442}.reason-mark.amber{background:#ffedc9;color:#9a5b00}.reason-mark.green{background:#d5f2e4;color:#167456}
-  .result-action{display:none;width:100%;margin-top:17px}
-  .result-card.has-result .result-empty{display:none}.result-card.has-result .result-action{display:flex}
-  .mini-panel{padding:17px 18px;border-radius:15px;border:1px solid #e3ebef;background:#fff}
-  .mini-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mini-header h3{font-size:12px;margin:0}.mini-header span{font-size:9px;color:#7b8e9f}
-  .metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  .metric{border:1px solid #e8eef1;background:#fbfcfd;padding:10px;border-radius:10px}.metric-top{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#8797a5;font-size:9px}.metric-top svg{width:14px;height:14px;color:#7190a1}.metric-value{font-size:19px;letter-spacing:-.5px;font-weight:850;margin:6px 0 2px;color:#20384b}.metric-sub{font-size:9px;color:#8897a4}
-  .guide{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #edf1f4}.guide:last-child{border-bottom:0;padding-bottom:0}.guide-icon{width:28px;height:28px;flex:0 0 auto;display:grid;place-items:center;border-radius:9px;background:#eaf8f6;color:#08887b}.guide-icon svg{width:15px;height:15px}.guide strong{display:block;font-size:10px;margin:1px 0 3px;color:#384e60}.guide p{font-size:9px;color:#7b8e9c;line-height:1.5;margin:0}
-  .footer{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:21px 3px 0;color:#80909d;font-size:9px;line-height:1.6}.footer strong{color:#53697a}.footer a{color:#268f85;text-decoration:none}.footer a:hover{text-decoration:underline}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,25px);opacity:0;pointer-events:none;background:#12293a;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 12px 30px #08182633;font-size:12px;z-index:10;transition:all .2s;max-width:calc(100vw - 30px)}.toast.show{opacity:1;transform:translate(-50%,0)}
-  .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  @media(max-width:1080px){.app{grid-template-columns:205px minmax(0,1fr)}.sidebar{padding-inline:12px}.layout{grid-template-columns:minmax(0,1fr)}.results-sticky{position:static;display:grid;grid-template-columns:1fr 1fr;align-items:start}.result-card{grid-row:span 2}.mini-panel{min-width:0}}
-  @media(max-width:720px){.app{display:block}.sidebar{position:relative;height:auto;padding:13px 16px;flex-direction:row;align-items:center;justify-content:space-between;gap:12px}.brand{padding:0}.brand-mark{width:34px;height:34px}.nav-label,.nav,.side-note,.side-footer{display:none}.topbar{margin-bottom:17px}.top-actions .demo-tag{display:none}main{padding:18px 14px 30px}.hero{padding:23px 20px;border-radius:18px}.hero:after{right:-220px}.layout{gap:15px}.panel-head{padding:18px}.form-body{padding:18px}.results-sticky{display:flex}.fields{gap:12px}.checks{grid-template-columns:1fr}.footer{display:block}.footer div+div{margin-top:8px}}
-  @media(max-width:420px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.radio-row{grid-template-columns:1fr}.radio-card label{justify-content:flex-start;padding-left:14px}.hero-bottom{gap:6px}.hero-pill{font-size:9px}.actions .btn{flex:1}.panel-head{gap:7px}.step-badge{font-size:9px}.result-title{font-size:20px}}
-  @media print{
-    body{background:#fff}.sidebar,.topbar,.hero,.alert-strip,.panel:not(.result-card),.mini-panel,.footer,.result-action,.toast{display:none!important}.app{display:block}main{padding:0}.layout{display:block}.results-sticky{display:block}.result-card{box-shadow:none;border:0}.result-top{padding:0 0 15px}.result-content{padding:16px 0}.result-card .result-empty{display:none}.result-card:not(.has-result) .result-empty{display:grid}.result-card.has-result .result-action{display:none!important}a{color:#000;text-decoration:none}
-  }
+:root{
+  --navy:#173247;--navy-2:#24475d;--teal:#177f7a;--teal-2:#e6f3f2;--teal-3:#cbe7e4;
+  --ink:#253746;--muted:#657887;--subtle:#8595a1;--paper:#f3f6f8;--white:#fff;--line:#dce5e9;
+  --red:#b73542;--red-bg:#fff0f0;--amber:#94600b;--amber-bg:#fff6e8;--green:#22775b;--green-bg:#eaf6f0;
+  --shadow:0 3px 16px rgba(26,51,70,.055);--r:13px;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;line-height:1.5;font-size:14px}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #90cfca;outline-offset:2px}.hidden{display:none!important}
+/* SIGN IN */
+.login-screen{min-height:100vh;display:grid;grid-template-columns:minmax(300px,.88fr) minmax(420px,1.12fr);background:#fff}
+.login-brand{position:relative;overflow:hidden;background:var(--navy);color:#fff;padding:clamp(30px,5vw,68px);display:flex;flex-direction:column;justify-content:space-between;min-height:100vh}
+.login-brand:before{content:"";position:absolute;width:480px;height:480px;border:1px solid rgba(255,255,255,.11);border-radius:50%;right:-230px;top:25%;box-shadow:0 0 0 38px rgba(255,255,255,.025),0 0 0 78px rgba(255,255,255,.018)}
+.login-brand:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(30,139,132,.12);bottom:-110px;left:-80px;filter:blur(8px)}
+.login-brand-inner{position:relative;z-index:1;max-width:560px}.institution-line{display:flex;align-items:center;gap:12px;font-size:12px;line-height:1.45;color:#d7e4eb;letter-spacing:.2px}
+.brand-symbol{width:43px;height:43px;border:1px solid rgba(255,255,255,.25);border-radius:11px;display:grid;place-items:center;color:#b8e1db;flex:0 0 auto}.brand-symbol svg{width:26px;height:26px}
+.brand-rule{height:1px;background:rgba(255,255,255,.18);margin:38px 0 32px;max-width:420px}
+.kicker{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#9bd5cf;margin:0 0 16px}
+.login-brand h1{font-size:clamp(30px,3.6vw,48px);letter-spacing:-1.7px;line-height:1.08;font-weight:650;margin:0 0 18px;max-width:500px}
+.login-brand .lead{font-size:15px;line-height:1.8;color:#cad8e0;max-width:490px;margin:0}
+.vital-graphic{margin-top:46px;max-width:460px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.035);border-radius:12px;padding:15px 17px}
+.vital-graphic-head{display:flex;align-items:center;justify-content:space-between;gap:15px;color:#c4d5df;font-size:10px;margin-bottom:10px}.vital-graphic-head span:last-child{color:#8ebfb9}
+.vital-graphic svg{display:block;width:100%;height:56px}.brand-foot{position:relative;z-index:1;font-size:11px;color:#aabdc9;line-height:1.7;margin-top:35px}.brand-foot strong{font-weight:650;color:#e5edf2}
+.login-panel{display:flex;align-items:center;justify-content:center;padding:35px 28px;background:#fff}.login-card{width:100%;max-width:420px}.login-card .kicker{color:var(--teal);margin-bottom:10px}.login-card h2{font-size:29px;letter-spacing:-.8px;line-height:1.2;margin:0 0 9px;color:#20394c;font-weight:700}.login-sub{margin:0 0 31px;color:var(--muted);font-size:13px;line-height:1.7}
+.form-label{display:block;font-size:12px;font-weight:700;color:#31495a;margin:0 0 7px}.login-input{width:100%;height:46px;border:1px solid #d6e0e5;border-radius:8px;padding:0 13px;background:#fbfcfd;color:var(--ink);margin-bottom:19px}.login-input:focus{border-color:#66aaa4;box-shadow:0 0 0 3px rgba(23,127,122,.1);outline:0}.password-wrap{position:relative}.password-wrap .login-input{padding-right:76px}.show-pass{position:absolute;right:10px;top:5px;height:36px;border:0;background:transparent;color:var(--teal);font-size:11px;font-weight:700;padding:0 7px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:8px;padding:11px 15px;font-weight:700;font-size:12px;transition:background .16s,border-color .16s,color .16s}.btn svg{width:16px;height:16px;flex:0 0 auto}.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#126d69}.btn-secondary{background:#fff;border-color:#d6e1e6;color:#415969}.btn-secondary:hover{background:#f6f9fa;border-color:#bccdd5}.btn-full{width:100%;min-height:46px;margin-top:4px}.login-notice{font-size:11px;line-height:1.65;color:#6b7c87;background:#f4f7f8;border:1px solid #e5ecef;border-radius:8px;padding:12px 13px;margin-top:19px}.login-notice strong{color:#40596a}.login-error{font-size:12px;color:var(--red);margin:-8px 0 13px;min-height:17px}.login-legal{font-size:10px;color:#9aa7af;line-height:1.65;margin:26px 0 0}
+/* APP CHROME */
+.app-shell{min-height:100vh;display:grid;grid-template-columns:236px minmax(0,1fr)}
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px 15px;background:var(--navy);color:#d9e4eb;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:1px 8px 25px;border-bottom:1px solid rgba(255,255,255,.12)}.brand .brand-symbol{width:37px;height:37px;border-radius:9px}.brand-title{font-size:16px;font-weight:750;color:#fff;letter-spacing:-.3px}.brand-caption{display:block;font-size:9px;letter-spacing:1.25px;text-transform:uppercase;color:#9cb3c1;margin-top:2px}
+.nav-group{margin-top:25px}.nav-title{font-size:9px;font-weight:800;letter-spacing:1.55px;text-transform:uppercase;color:#8ca4b2;padding:0 12px 9px}.nav-link{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:0;background:transparent;border-radius:8px;color:#c1d0d9;font-size:12px;font-weight:600;padding:11px 12px;margin:3px 0}.nav-link svg{width:17px;height:17px;opacity:.85;flex:0 0 auto}.nav-link:hover{background:rgba(255,255,255,.055);color:#fff}.nav-link.active{background:rgba(118,197,189,.14);color:#a4e0d9;box-shadow:inset 3px 0 0 #7fc9c2}
+.sidebar-spacer{flex:1}.sidebar-notice{font-size:10px;line-height:1.7;border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:12px;color:#b5c6d0;background:rgba(255,255,255,.035)}.sidebar-notice strong{display:block;font-size:11px;color:#f1f5f7;margin-bottom:3px}.sidebar-foot{font-size:9px;color:#849ba9;padding:15px 10px 0;letter-spacing:.3px}
+.main-area{min-width:0}.topbar{min-height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(18px,3vw,36px);position:sticky;top:0;z-index:15}.breadcrumb{font-size:11px;color:#738491}.breadcrumb strong{font-weight:700;color:#2e4658}.account-tools{display:flex;align-items:center;gap:12px}.demo-label{display:flex;align-items:center;gap:7px;font-size:10px;color:#647783;background:#f5f7f8;border:1px solid #e2e8eb;border-radius:20px;padding:7px 10px;white-space:nowrap}.demo-label i{width:6px;height:6px;background:#c18a35;border-radius:50%}.account-name{font-size:11px;color:#435969;font-weight:700;white-space:nowrap}.account-avatar{width:32px;height:32px;background:#e2f0ef;color:#1a716e;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800}.logout{background:transparent;border:0;color:#667987;font-size:11px;padding:6px 0}.logout:hover{color:var(--teal)}
+.main-content{max-width:1550px;margin:0 auto;padding:27px clamp(17px,3vw,36px) 45px}.view{display:none}.view.active{display:block;animation:appear .16s ease-out}@keyframes appear{from{opacity:.75;transform:translateY(3px)}to{opacity:1;transform:none}}
+.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:22px;margin:0 0 21px}.page-heading h1{font-size:25px;line-height:1.25;letter-spacing:-.65px;color:#20394b;margin:0 0 6px;font-weight:750}.page-heading p{font-size:12px;color:var(--muted);margin:0;line-height:1.65;max-width:720px}.eyebrow{color:var(--teal);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.7px;margin-bottom:8px}.heading-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.urgent-banner{display:flex;gap:11px;align-items:flex-start;border:1px solid #efd6a9;background:#fff9ef;color:#77541e;border-radius:9px;padding:12px 14px;margin-bottom:20px;font-size:11px;line-height:1.65}.urgent-banner svg{width:18px;height:18px;flex:0 0 auto;margin-top:1px}.urgent-banner strong{color:#5b3e12}
+.eval-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.82fr);gap:18px;align-items:start}.panel{background:#fff;border:1px solid #dfe7eb;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;min-width:0}.panel-header{padding:17px 19px;border-bottom:1px solid #e8eef1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.panel-header h2{margin:0 0 5px;color:#2a4355;font-size:14px;line-height:1.35;font-weight:750}.panel-header p{margin:0;color:#788995;font-size:10px;line-height:1.55}.panel-badge{color:#28716e;background:#e9f4f3;border:1px solid #d3e9e6;border-radius:5px;padding:5px 7px;font-size:9px;letter-spacing:.7px;font-weight:800;white-space:nowrap}.form-content{padding:20px}.form-section{margin-bottom:21px}.section-heading{display:flex;align-items:center;gap:9px;margin-bottom:13px;color:#2c4557;font-size:11px;font-weight:800}.section-index{display:grid;place-items:center;width:23px;height:23px;border-radius:6px;background:#edf4f5;color:#3c7778;font-size:10px;font-weight:800}.section-hint{margin-left:auto;color:#92a0a9;font-size:9px;font-weight:500}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 12px}.field{min-width:0}.field.full{grid-column:1/-1}.form-label{display:block;font-size:10px;font-weight:750;color:#405566;margin:0 0 6px}.required{color:#b43e48}.optional{color:#92a0a9;font-weight:500;margin-left:3px}.input-wrap{position:relative}.input,.select,.textarea{width:100%;border:1px solid #d9e3e8;background:#fbfcfd;border-radius:7px;color:#2a4051;padding:10px 11px;font-size:11px;min-height:39px;outline:none;transition:border .15s,box-shadow .15s}.input:focus,.select:focus,.textarea:focus{border-color:#72b3ad;box-shadow:0 0 0 3px rgba(23,127,122,.09)}.input::placeholder,.textarea::placeholder{color:#a4afb6}.unit{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:#8697a2;pointer-events:none}.input.with-unit{padding-right:45px}.radio-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.radio-option{position:relative}.radio-option input{position:absolute;opacity:0;width:1px;height:1px}.radio-option label{display:flex;align-items:center;justify-content:center;gap:7px;min-height:38px;border:1px solid #d9e3e8;border-radius:7px;background:#fbfcfd;color:#657887;padding:7px;text-align:center;margin:0;font-size:10px;font-weight:700;cursor:pointer}.radio-option label:before{content:"";width:8px;height:8px;border:1px solid #9aabb5;border-radius:50%;flex:0 0 auto}.radio-option input:checked+label{border-color:#66a9a2;background:#eef7f6;color:#176d69}.radio-option input:checked+label:before{border:3px solid #177f7a;background:white}
+.check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.check-option{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid #e0e7eb;border-radius:7px;min-height:53px;cursor:pointer;background:#fcfdfd}.check-option:hover{border-color:#bfd8d6}.check-option input{margin:2px 0 0;width:13px;height:13px;accent-color:#177f7a;flex:0 0 auto}.check-option span{font-size:10px;line-height:1.45;font-weight:650;color:#4b6170}.check-option small{display:block;font-size:9px;color:#8998a2;font-weight:450;line-height:1.45;margin-top:2px}.form-divider{height:1px;background:#e8eef1;margin:19px 0}.form-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.form-actions .btn{min-height:38px}.form-disclaimer{font-size:9px;color:#8998a3;line-height:1.65;margin:11px 0 0}.sticky-column{position:sticky;top:90px;display:flex;flex-direction:column;gap:14px}.result-card{background:#fff;border:1px solid #dfe7eb;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}.result-top{padding:18px 19px 16px;background:#f8fafb;border-bottom:1px solid #e7edef}.result-kicker{display:flex;align-items:center;gap:7px;color:#778995;text-transform:uppercase;letter-spacing:1.15px;font-size:9px;font-weight:800}.result-dot{width:7px;height:7px;border-radius:50%;background:#a6b4bc}.result-title{font-size:20px;line-height:1.15;letter-spacing:-.5px;color:#273f50;margin:12px 0 7px;font-weight:800}.result-summary{font-size:10px;line-height:1.7;color:#677b88;margin:0}.result-body{padding:16px 19px 19px}.result-empty{min-height:155px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;color:#8a9aa4}.result-empty-mark{display:grid;place-items:center;width:39px;height:39px;border:1px solid #d8e7e6;background:#f2f8f7;border-radius:9px;color:#588d89;margin-bottom:12px}.result-empty-mark svg{width:20px;height:20px}.result-empty strong{color:#526978;font-size:11px;margin-bottom:4px}.result-empty p{font-size:10px;line-height:1.65;margin:0;max-width:280px}.result-dynamic[hidden]{display:none}.status-box{padding:12px;border-radius:8px;border:1px solid #dce5e9;background:#f6f8f9;margin-bottom:15px}.status-box.red{background:var(--red-bg);border-color:#f0caca}.status-box.amber{background:var(--amber-bg);border-color:#eedbb6}.status-box.green{background:var(--green-bg);border-color:#cce6d9}.status-box h3{font-size:11px;margin:0 0 5px;color:#344c5c}.status-box.red h3{color:#9f2836}.status-box.amber h3{color:#86530a}.status-box.green h3{color:#21694f}.status-box p{font-size:10px;line-height:1.65;color:#596f7d;margin:0}.reason-heading{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.1px;color:#718592;margin:16px 0 9px}.reason-list{display:flex;flex-direction:column;gap:8px}.reason{display:flex;align-items:flex-start;gap:8px;font-size:10px;line-height:1.6;color:#536876}.reason-mark{display:grid;place-items:center;flex:0 0 17px;width:17px;height:17px;border-radius:5px;background:#edf2f4;color:#677d89;font-size:10px;font-weight:850;margin-top:1px}.reason-mark.red{background:#fce0e1;color:#a42e3a}.reason-mark.amber{background:#fff0d1;color:#895608}.reason-mark.green{background:#dcefe5;color:#216e50}.reason-mark.neutral{background:#e8f0f2;color:#587484}.result-detail{padding:10px 11px;background:#f7f9fa;border:1px solid #e7edef;border-radius:7px;color:#647985;font-size:9px;line-height:1.7;margin-bottom:12px}.result-action{width:100%;margin-top:17px;min-height:38px}.metric-panel{background:#fff;border:1px solid #dfe7eb;border-radius:var(--r);box-shadow:var(--shadow);padding:15px 16px}.metric-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.metric-header h3{font-size:11px;color:#344e5e;margin:0}.metric-header span{font-size:9px;color:#8796a0}.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{border:1px solid #e5ecef;background:#fbfcfc;border-radius:7px;padding:10px}.metric span{display:block;color:#7d8d98;font-size:9px;margin-bottom:5px}.metric strong{font-size:18px;letter-spacing:-.4px;color:#2b4658;font-weight:750}.metric small{font-size:9px;color:#8a9aa4;margin-left:3px;font-weight:500}
+/* DASHBOARD, HISTORY, GUIDE */
+.dashboard-banner{background:#fff;border:1px solid #dfe7eb;border-radius:12px;padding:21px 23px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:18px;box-shadow:var(--shadow)}.dashboard-banner h2{font-size:20px;letter-spacing:-.5px;line-height:1.3;margin:0 0 8px;color:#213c4f}.dashboard-banner p{font-size:11px;line-height:1.7;max-width:680px;color:#6d7f8b;margin:0}.dashboard-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:18px}.stat-card{background:#fff;border:1px solid #dfe7eb;border-radius:10px;padding:16px 17px;box-shadow:var(--shadow)}.stat-label{font-size:10px;color:#768995;margin-bottom:9px}.stat-value{font-size:25px;font-weight:800;line-height:1;color:#2d4859;letter-spacing:-.7px}.stat-foot{font-size:9px;color:#96a2a9;margin-top:9px}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:15px}.simple-card{background:#fff;border:1px solid #dfe7eb;border-radius:10px;padding:18px;box-shadow:var(--shadow)}.simple-card h3{font-size:13px;margin:0 0 7px;color:#314b5d}.simple-card>p{font-size:10px;line-height:1.7;color:#788a95;margin:0 0 15px}.workflow{display:grid;gap:12px}.workflow-row{display:flex;align-items:flex-start;gap:10px}.workflow-number{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;background:#edf4f4;color:#317673;font-size:10px;font-weight:800;flex:0 0 auto}.workflow-row strong{display:block;font-size:10px;color:#435c6b;margin:2px 0 3px}.workflow-row p{margin:0;font-size:10px;line-height:1.6;color:#7e8e98}.home-note{margin-top:14px;border-left:3px solid #d8a44e;background:#fff8ed;padding:11px 13px;color:#72551f;font-size:10px;line-height:1.7}.table-panel{background:#fff;border:1px solid #dfe7eb;border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}.table-head{padding:16px 18px;border-bottom:1px solid #e8eef1;display:flex;align-items:center;justify-content:space-between;gap:12px}.table-head h3{font-size:12px;margin:0;color:#334c5d}.table-head span{font-size:9px;color:#8796a0}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:10px}th{text-align:left;color:#7c8c96;text-transform:uppercase;letter-spacing:.65px;font-size:9px;font-weight:800;background:#fafcfc;padding:11px 14px;white-space:nowrap}td{padding:12px 14px;border-top:1px solid #edf1f3;color:#4c6270;white-space:nowrap}td strong{color:#304a5c;font-weight:700}.status-pill{display:inline-block;border-radius:5px;padding:4px 7px;font-size:9px;font-weight:800}.status-pill.red{background:#ffeded;color:#a02d37}.status-pill.amber{background:#fff2d9;color:#87580c}.status-pill.green{background:#e7f5ed;color:#226b4f}.table-action{border:0;background:transparent;color:#177f7a;font-weight:750;font-size:10px;padding:4px}.table-action:hover{text-decoration:underline}.empty-table{padding:30px 18px;text-align:center;color:#8998a2;font-size:11px;line-height:1.7}.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.guide-card{background:#fff;border:1px solid #dfe7eb;border-radius:10px;padding:18px;box-shadow:var(--shadow)}.guide-card h3{font-size:13px;color:#314b5d;margin:0 0 8px}.guide-card p,.guide-card li{font-size:10px;line-height:1.8;color:#6c808c}.guide-card p{margin:0}.guide-card ul{margin:8px 0 0;padding-left:17px}.notice-block{margin-top:15px;padding:14px;border:1px solid #ecd9b5;background:#fff8eb;border-radius:8px;color:#75541c;font-size:10px;line-height:1.75}.footer-note{margin-top:20px;font-size:9px;color:#91a0a8;line-height:1.7}
+.toast{position:fixed;bottom:20px;right:20px;max-width:min(380px,calc(100vw - 40px));background:#203e50;color:white;padding:12px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(14,34,49,.18);font-size:11px;z-index:100;opacity:0;transform:translateY(7px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
+/* RESPONSIVE */
+@media(max-width:1100px){.app-shell{grid-template-columns:205px minmax(0,1fr)}.sidebar{padding-left:10px;padding-right:10px}.eval-layout{grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr);gap:12px}.form-content{padding:16px}.check-grid{grid-template-columns:1fr}.sticky-column{top:82px}}
+@media(max-width:820px){.app-shell,.sidebar,.main-area,.nav-group,.nav-list{min-width:0;max-width:100%;width:100%}.sidebar{overflow:hidden}.nav-list{overflow-x:auto;overscroll-behavior-x:contain}.login-screen{grid-template-columns:1fr}.login-brand{min-height:auto;padding:30px 26px 24px}.login-brand:before,.login-brand:after,.vital-graphic{display:none}.brand-rule{margin:25px 0 22px}.login-brand h1{font-size:31px}.login-brand .lead{font-size:13px}.brand-foot{margin-top:27px}.login-panel{padding:34px 24px 42px}.app-shell{grid-template-columns:1fr}.sidebar{position:relative;width:100%;height:auto;padding:12px 14px;gap:0}.brand{padding:0 4px 12px;border-bottom:0}.brand .brand-symbol{width:33px;height:33px}.nav-group{margin:8px 0 0}.nav-title,.sidebar-notice,.sidebar-foot{display:none}.nav-list{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}.nav-link{justify-content:center;white-space:nowrap;margin:0;padding:9px 11px;width:auto;flex:0 0 auto;font-size:11px}.nav-link svg{width:15px;height:15px}.sidebar-spacer{display:none}.topbar{position:static;min-height:58px}.eval-layout{grid-template-columns:1fr}.sticky-column{position:static;grid-row:2}.check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.dashboard-banner{align-items:flex-start;flex-direction:column}.dashboard-stats{gap:9px}.stat-card{padding:13px}.stat-value{font-size:22px}}
+@media(max-width:540px){.main-content{padding:20px 12px 32px}.topbar{padding:10px 13px}.account-name{display:none}.demo-label{font-size:9px;padding:6px 8px}.page-heading{display:block}.heading-actions{margin-top:14px}.page-heading h1{font-size:23px}.panel-header{padding:14px}.form-content{padding:14px}.fields{grid-template-columns:1fr;gap:11px}.field.full{grid-column:auto}.radio-row{gap:5px}.radio-option label{font-size:9px;padding:6px 3px}.check-grid{grid-template-columns:1fr}.section-hint{font-size:8px}.form-actions .btn{width:100%}.result-title{font-size:19px}.dashboard-stats{grid-template-columns:1fr 1fr}.dashboard-stats .stat-card:last-child{grid-column:1/-1}.guide-grid{grid-template-columns:1fr}.login-brand{padding:25px 21px}.login-panel{padding:28px 21px}.login-card h2{font-size:26px}.dashboard-banner{padding:18px}.nav-link{padding:9px}.nav-link svg{display:none}}
+/* PRINT REPORT */
+@media print{body{background:#fff!important}body.printing *{visibility:hidden!important}body.printing #resultCard,body.printing #resultCard *{visibility:visible!important}body.printing #resultCard{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:100%!important;box-shadow:none!important;border:0!important;border-radius:0!important;overflow:visible!important}body.printing #resultCard .result-top{background:#f4f7f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}body.printing #resultCard .result-content{padding:17px 0!important}body.printing #printBtn{display:none!important}body.printing .print-head{display:block!important}body.printing .result-card{margin:0!important}.print-head{display:none!important}}
 </style>
 </head>
 <body>
-<div class="app">
+<!-- LOGIN: demostración local; no representa autenticación institucional real -->
+<section id="loginScreen" class="login-screen" aria-label="Inicio de sesión">
+  <div class="login-brand">
+    <div class="login-brand-inner">
+      <div class="institution-line">
+        <div class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.2" opacity=".65"/></svg></div>
+        <div><strong>Universidad del Sinú</strong><br>Sede Santillana · Proyecto académico</div>
+      </div>
+      <div class="brand-rule"></div>
+      <p class="kicker">Proyecto de emprendimiento en salud digital</p>
+      <h1>Evaluación temprana de señales de alarma.</h1>
+      <p class="lead">Herramienta académica para organizar signos vitales y hallazgos clínicos en adultos con sospecha de infección.</p>
+      <div class="vital-graphic" aria-label="Representación gráfica de una señal fisiológica">
+        <div class="vital-graphic-head"><span>MONITORIZACIÓN CLÍNICA</span><span>Visual conceptual</span></div>
+        <svg viewBox="0 0 420 56" preserveAspectRatio="none" role="img" aria-label="Línea de monitorización ilustrativa">
+          <path d="M0 31 H70 L83 31 L92 25 L100 38 L111 7 L124 47 L136 31 H190 L205 31 L216 25 L224 38 L235 7 L248 47 L260 31 H310 L325 31 L336 25 L344 38 L355 7 L368 47 L380 31 H420" fill="none" stroke="#8ccac3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M0 47H420" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="3 6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="brand-foot"><strong>SepsiSignal</strong><br>Prototipo académico · No constituye un dispositivo médico ni un sistema de diagnóstico.</div>
+  </div>
+  <div class="login-panel">
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <p class="kicker">Acceso a la plataforma</p>
+      <h2>Bienvenido/a</h2>
+      <p class="login-sub">Ingresa tus datos para acceder al módulo de evaluación temprana.</p>
+      <label class="form-label" for="loginUser">Usuario</label>
+      <input class="login-input" id="loginUser" name="username" type="text" placeholder="Ingresa un usuario" autocomplete="username" required maxlength="60">
+      <label class="form-label" for="loginPassword">Contraseña</label>
+      <div class="password-wrap"><input class="login-input" id="loginPassword" name="password" type="password" placeholder="Ingresa una contraseña" autocomplete="current-password" required maxlength="100"><button class="show-pass" id="togglePassword" type="button" aria-label="Mostrar contraseña">Mostrar</button></div>
+      <p class="login-error" id="loginError" role="alert"></p>
+      <button class="btn btn-primary btn-full" type="submit">Ingresar <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="login-notice"><strong>Entorno de demostración.</strong> Puedes ingresar con cualquier usuario y contraseña no vacíos. Los datos no se envían a un servidor. Este acceso no ofrece seguridad real ni debe usarse con credenciales institucionales.</div>
+      <p class="login-legal">Proyecto académico de emprendimiento · Universidad del Sinú, sede Santillana.<br>Evaluación orientativa para fines educativos. No usar para decisiones clínicas reales.</p>
+    </form>
+  </div>
+</section>
+
+<section id="appShell" class="app-shell hidden">
   <aside class="sidebar" aria-label="Navegación principal">
     <div class="brand">
-      <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".35"/></svg></div>
-      <div><div class="brand-name">SepsiSignal</div><span class="brand-sub">Early recognition</span></div>
+      <div class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.2" opacity=".65"/></svg></div>
+      <div><div class="brand-title">SepsiSignal</div><span class="brand-caption">Evaluación temprana</span></div>
     </div>
-    <div class="nav">
-      <div class="nav-label">Espacio clínico</div>
-      <div class="nav-item active" id="navEval" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 4h18v16H3z" stroke="currentColor" stroke-width="1.3" opacity=".45"/></svg>Evaluación temprana</div>
-      <div class="nav-item" id="navReport" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Registro de evaluación</div>
-      <div class="nav-item" id="navGuide" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.5"/><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Guía de actuación</div>
+    <div class="nav-group">
+      <div class="nav-title">Área de trabajo</div>
+      <div class="nav-list">
+        <button class="nav-link active" data-view="evaluation" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Nueva evaluación</button>
+        <button class="nav-link" data-view="dashboard" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h7V4H4zM14 20h6v-9h-6zM14 7h6V4h-6zM4 20h7v-4H4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Panel general</button>
+        <button class="nav-link" data-view="history" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v15H4zM8 9h8M8 13h8M8 17h5M7 2v5M17 2v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Registros de sesión</button>
+        <button class="nav-link" data-view="guide" type="button"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M9.6 9a2.5 2.5 0 1 1 4.2 1.8c-1.2 1-1.8 1.3-1.8 2.7M12 17h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Acerca del proyecto</button>
+      </div>
     </div>
-    <div class="side-note"><strong><span class="dot"></span>Prototipo académico</strong>Esta herramienta es demostrativa. No está validada para decisiones clínicas ni sustituye el juicio profesional o los protocolos institucionales.</div>
-    <div class="side-footer">VERSIÓN 0.1 · OCTUBRE 2026</div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-notice"><strong>Prototipo académico</strong>Los resultados son orientativos y no confirman ni descartan sepsis. Ante signos de alarma, la atención no debe esperar por el formulario.</div>
+    <div class="sidebar-foot">UNIVERSIDAD DEL SINÚ · SEDE SANTILLANA</div>
   </aside>
 
-  <main>
-    <div class="topbar">
-      <div class="crumb">Espacio clínico <span aria-hidden="true">/</span> <b>Evaluación temprana</b></div>
-      <div class="top-actions"><div class="demo-tag"><span></span> Modo demostración · sin almacenamiento</div><div class="avatar" aria-label="Prototipo">SS</div></div>
-    </div>
+  <div class="main-area">
+    <header class="topbar">
+      <div class="breadcrumb"><span>SepsiSignal</span> &nbsp;/&nbsp; <strong id="breadcrumbCurrent">Nueva evaluación</strong></div>
+      <div class="account-tools"><div class="demo-label"><i></i> Sesión de demostración</div><div class="account-avatar" id="userAvatar">US</div><span class="account-name" id="accountName">Usuario</span><button type="button" class="logout" id="logoutBtn">Salir</button></div>
+    </header>
 
-    <section class="hero" aria-labelledby="main-title">
-      <div class="hero-inner">
-        <div class="eyebrow"><i></i> Early sepsis recognition</div>
-        <h1 id="main-title">Cada signo cuenta.<br>Reconoce el deterioro a tiempo.</h1>
-        <p>Organiza los hallazgos clínicos de un adulto con posible infección, identifica señales de alarma y genera una orientación inicial para apoyar la valoración del equipo de salud.</p>
-        <div class="hero-bottom">
-          <div class="hero-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Signos vitales</div>
-          <div class="hero-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.6"/></svg>Señales de alarma</div>
-          <div class="hero-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M4 18V6m0 12h16M7 15l4-5 3 2 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Orientación inicial</div>
+    <main class="main-content">
+      <!-- VIEW: EVALUATION -->
+      <section class="view active" id="view-evaluation">
+        <div class="page-heading">
+          <div><p class="eyebrow">Reconocimiento temprano · Adultos</p><h1>Nueva evaluación clínica</h1><p>Registra los signos vitales y las señales de alarma disponibles. El resultado organiza los hallazgos para apoyar la valoración profesional.</p></div>
+          <div class="heading-actions"><button type="button" class="btn btn-secondary" id="loadDemoTop"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Cargar caso ficticio</button></div>
         </div>
-      </div>
-    </section>
-
-    <div class="alert-strip" role="note">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 22 20H2L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>Antes de empezar:</strong> si el paciente presenta confusión nueva, dificultad respiratoria intensa, coloración azulada o moteada, desmayo o presión arterial muy baja, solicita atención de emergencia de inmediato. No retrases la atención para completar este formulario.</div>
-    </div>
-
-    <div class="layout">
-      <section class="panel" aria-labelledby="form-title">
-        <div class="panel-head">
-          <div><h2 id="form-title">Evaluación del paciente</h2><p>Introduce la información disponible. Los campos marcados son necesarios.</p></div>
-          <span class="step-badge">EVALUACIÓN 01</span>
-        </div>
-        <form id="triageForm" class="form-body" novalidate>
-          <div class="section-title"><span class="section-number">01</span> Contexto clínico <span class="section-sub">Datos básicos</span></div>
-          <div class="fields">
-            <div class="field"><label for="patientCode">Código o iniciales <span class="optional">opcional</span></label><input id="patientCode" name="patientCode" type="text" placeholder="Ej. PAC-024" maxlength="32" autocomplete="off"></div>
-            <div class="field"><label for="age">Edad <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="age" name="age" type="number" min="16" max="120" step="1" placeholder="Ej. 58" required><span class="unit">años</span></div></div>
-            <div class="field full"><label>¿Existe sospecha o confirmación de infección? <span style="color:#c63e4b">*</span></label>
-              <div class="radio-row">
-                <div class="radio-card"><input id="infectionYes" type="radio" name="infection" value="yes" required><label for="infectionYes">Sí</label></div>
-                <div class="radio-card"><input id="infectionNo" type="radio" name="infection" value="no"><label for="infectionNo">No</label></div>
-                <div class="radio-card"><input id="infectionUnknown" type="radio" name="infection" value="unknown"><label for="infectionUnknown">No se sabe</label></div>
+        <div class="urgent-banner" role="note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 22 20H2L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><div><strong>Prioridad asistencial:</strong> si hay confusión nueva, dificultad respiratoria intensa, coloración azulada o moteada, desmayo o presión arterial muy baja, activa atención de emergencia. No retrases la atención para terminar esta evaluación.</div></div>
+        <div class="eval-layout">
+          <section class="panel" aria-labelledby="formTitle">
+            <div class="panel-header"><div><h2 id="formTitle">Datos del paciente</h2><p>Usa un código interno en lugar de nombre o documento.</p></div><span class="panel-badge">FORMULARIO 01</span></div>
+            <form id="triageForm" class="form-content" novalidate>
+              <div class="form-section">
+                <div class="section-heading"><span class="section-index">01</span> Contexto clínico <span class="section-hint">Información básica</span></div>
+                <div class="fields">
+                  <div class="field"><label class="form-label" for="patientCode">Código de registro <span class="optional">opcional</span></label><input class="input" id="patientCode" type="text" maxlength="32" placeholder="Ej. DEMO-024" autocomplete="off"></div>
+                  <div class="field"><label class="form-label" for="age">Edad <span class="required">*</span></label><div class="input-wrap"><input class="input with-unit" id="age" type="number" min="16" max="120" step="1" placeholder="Ej. 58" required><span class="unit">años</span></div></div>
+                  <div class="field full"><span class="form-label">¿Existe sospecha o confirmación de infección? <span class="required">*</span></span><div class="radio-row">
+                    <div class="radio-option"><input id="infectionYes" type="radio" name="infection" value="yes" required><label for="infectionYes">Sí</label></div>
+                    <div class="radio-option"><input id="infectionNo" type="radio" name="infection" value="no"><label for="infectionNo">No</label></div>
+                    <div class="radio-option"><input id="infectionUnknown" type="radio" name="infection" value="unknown"><label for="infectionUnknown">No se sabe</label></div>
+                  </div></div>
+                  <div class="field"><label class="form-label" for="source">Foco sospechado</label><select class="select" id="source"><option value="No definido">No definido</option><option>Respiratorio</option><option>Urinario</option><option>Abdominal / digestivo</option><option>Piel y tejidos blandos</option><option>Dispositivo / catéter</option><option>Otro</option></select></div>
+                  <div class="field"><label class="form-label" for="pregnancy">Embarazo o posparto reciente</label><select class="select" id="pregnancy"><option value="no">No / no aplica</option><option value="yes">Sí</option><option value="unknown">Desconocido</option></select></div>
+                </div>
               </div>
-            </div>
-            <div class="field"><label for="source">Foco sospechado <span class="optional">opcional</span></label><select id="source" name="source"><option value="No definido">No definido</option><option>Respiratorio</option><option>Urinario</option><option>Abdominal / digestivo</option><option>Piel y tejidos blandos</option><option>Dispositivo / catéter</option><option>Otro</option></select></div>
-            <div class="field"><label for="pregnancy">Embarazo o posparto reciente</label><select id="pregnancy" name="pregnancy"><option value="no">No / no aplica</option><option value="yes">Sí</option><option value="unknown">Desconocido</option></select></div>
-          </div>
+              <div class="form-section">
+                <div class="section-heading"><span class="section-index">02</span> Signos vitales <span class="section-hint">Valores actuales</span></div>
+                <div class="fields">
+                  <div class="field"><label class="form-label" for="hr">Frecuencia cardíaca <span class="required">*</span></label><div class="input-wrap"><input class="input with-unit" id="hr" type="number" min="20" max="300" step="1" placeholder="Ej. 112" required><span class="unit">lpm</span></div></div>
+                  <div class="field"><label class="form-label" for="rr">Frecuencia respiratoria <span class="required">*</span></label><div class="input-wrap"><input class="input with-unit" id="rr" type="number" min="4" max="100" step="1" placeholder="Ej. 26" required><span class="unit">rpm</span></div></div>
+                  <div class="field"><label class="form-label" for="temp">Temperatura <span class="required">*</span></label><div class="input-wrap"><input class="input with-unit" id="temp" type="number" min="25" max="45" step="0.1" placeholder="Ej. 38.7" required><span class="unit">°C</span></div></div>
+                  <div class="field"><label class="form-label" for="sbp">Presión sistólica <span class="required">*</span></label><div class="input-wrap"><input class="input with-unit" id="sbp" type="number" min="30" max="300" step="1" placeholder="Ej. 88" required><span class="unit">mmHg</span></div></div>
+                  <div class="field"><label class="form-label" for="dbp">Presión diastólica <span class="optional">opcional</span></label><div class="input-wrap"><input class="input with-unit" id="dbp" type="number" min="10" max="200" step="1" placeholder="Ej. 55"><span class="unit">mmHg</span></div></div>
+                  <div class="field"><label class="form-label" for="spo2">Saturación de oxígeno <span class="required">*</span></label><div class="input-wrap"><input class="input with-unit" id="spo2" type="number" min="40" max="100" step="1" placeholder="Ej. 91" required><span class="unit">%</span></div></div>
+                  <div class="field full"><label class="form-label" for="mental">Estado mental actual <span class="required">*</span></label><select class="select" id="mental" required><option value="">Selecciona una opción</option><option value="normal">Alerta y orientado, como de costumbre</option><option value="confused">Confusión nueva o alteración de conciencia</option><option value="unknown">No evaluado / desconocido</option></select></div>
+                </div>
+              </div>
+              <div class="form-section">
+                <div class="section-heading"><span class="section-index">03</span> Síntomas y señales de alarma <span class="section-hint">Marca los presentes</span></div>
+                <div class="check-grid">
+                  <label class="check-option"><input type="checkbox" name="warning" value="cyanosis"><span>Coloración azulada, piel moteada o aspecto ceniciento<small>Hallazgo visual de alarma</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="rash"><span>Manchas rojas o moradas que no palidecen al presionar<small>Erupción no blanqueable</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="urine"><span>Orina mucho menos de lo habitual<small>Posible cambio en perfusión o función renal</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="oxygen"><span>Necesidad nueva o creciente de oxígeno<small>Comparado con su situación habitual</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="decline"><span>Deterioro rápido o empeoramiento reciente<small>Según paciente, familia o equipo</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="pain"><span>Dolor o malestar extremo, escalofríos intensos<small>Manifestaciones sistémicas relevantes</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="immuno"><span>Inmunosupresión o defensas disminuidas<small>Por enfermedad o medicamentos</small></span></label>
+                  <label class="check-option"><input type="checkbox" name="warning" value="procedure"><span>Cirugía, procedimiento o dispositivo reciente<small>Especialmente en las últimas semanas</small></span></label>
+                </div>
+                <div class="field" style="margin-top:13px"><label class="form-label" for="notes">Observaciones clínicas <span class="optional">opcional</span></label><textarea class="textarea" id="notes" rows="3" maxlength="500" placeholder="Tiempo de evolución, cambios respecto al estado basal…" style="resize:vertical"></textarea></div>
+              </div>
+              <div class="form-divider"></div>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Generar orientación</button>
+                <button class="btn btn-secondary" type="button" id="loadDemo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Caso ficticio</button>
+                <button class="btn btn-secondary" type="reset" id="resetBtn">Limpiar formulario</button>
+              </div>
+              <p class="form-disclaimer">Reglas demostrativas sin validación clínica. No representan NEWS2 ni qSOFA y no sustituyen los protocolos institucionales. Uso exclusivo académico con casos ficticios.</p>
+            </form>
+          </section>
 
-          <div class="section-title"><span class="section-number">02</span> Signos vitales <span class="section-sub">Valores actuales</span></div>
-          <div class="fields">
-            <div class="field"><label for="hr">Frecuencia cardíaca <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="hr" name="hr" type="number" min="20" max="300" step="1" placeholder="Ej. 112" required><span class="unit">lpm</span></div></div>
-            <div class="field"><label for="rr">Frecuencia respiratoria <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="rr" name="rr" type="number" min="4" max="100" step="1" placeholder="Ej. 26" required><span class="unit">rpm</span></div></div>
-            <div class="field"><label for="temp">Temperatura <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="temp" name="temp" type="number" min="25" max="45" step="0.1" placeholder="Ej. 38.7" required><span class="unit">°C</span></div></div>
-            <div class="field"><label for="sbp">Presión sistólica <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="sbp" name="sbp" type="number" min="30" max="300" step="1" placeholder="Ej. 88" required><span class="unit">mmHg</span></div></div>
-            <div class="field"><label for="dbp">Presión diastólica <span class="optional">opcional</span></label><div class="input-wrap"><input id="dbp" name="dbp" type="number" min="10" max="200" step="1" placeholder="Ej. 55"><span class="unit">mmHg</span></div></div>
-            <div class="field"><label for="spo2">Saturación de oxígeno <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="spo2" name="spo2" type="number" min="40" max="100" step="1" placeholder="Ej. 91" required><span class="unit">%</span></div></div>
-            <div class="field full"><label for="mental">Estado mental actual <span style="color:#c63e4b">*</span></label><select id="mental" name="mental" required><option value="">Selecciona una opción</option><option value="normal">Alerta y orientado, como de costumbre</option><option value="confused">Confusión nueva o alteración de conciencia</option><option value="unknown">No evaluado / desconocido</option></select></div>
-          </div>
-
-          <div class="section-title"><span class="section-number">03</span> Síntomas y signos de alarma <span class="section-sub">Marca los presentes</span></div>
-          <div class="checks">
-            <label class="check"><input type="checkbox" name="warning" value="cyanosis"><span>Coloración azulada, piel moteada o aspecto ceniciento<small>Hallazgo visual de alarma</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="rash"><span>Manchas rojas o moradas que no palidecen al presionar<small>Erupción no blanqueable</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="urine"><span>Orina mucho menos de lo habitual<small>Posible deterioro de perfusión o función renal</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="oxygen"><span>Necesidad nueva o creciente de oxígeno<small>Comparado con su situación habitual</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="decline"><span>Deterioro rápido o empeoramiento reciente<small>Según el paciente, familia o equipo</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="pain"><span>Dolor o malestar extremo, escalofríos intensos<small>Manifestaciones sistémicas relevantes</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="immuno"><span>Inmunosupresión o defensas disminuidas<small>Enfermedad o medicamentos</small></span></label>
-            <label class="check"><input type="checkbox" name="warning" value="procedure"><span>Cirugía, procedimiento o dispositivo reciente<small>Especialmente en las últimas semanas</small></span></label>
-          </div>
-          <div class="field full" style="margin-top:16px"><label for="notes">Observaciones clínicas <span class="optional">opcional · no incluir datos identificables</span></label><textarea id="notes" rows="3" maxlength="500" placeholder="Ej. síntomas desde hace 12 horas, cambios respecto al estado basal…" style="resize:vertical"></textarea></div>
-          <div class="divider"></div>
-          <div class="actions">
-            <button class="btn btn-primary" type="submit"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Analizar señales de alarma</button>
-            <button class="btn btn-secondary" type="button" id="demoBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Cargar caso demo</button>
-            <button class="btn btn-secondary" type="reset" id="resetBtn">Limpiar</button>
-          </div>
-          <p class="microcopy">Este prototipo usa reglas de demostración, no una escala clínica validada. No calcula NEWS2 ni qSOFA. Las mediciones deben verificarse y los hallazgos interpretarse con la historia clínica, la exploración y el juicio del profesional.</p>
-        </form>
+          <aside class="sticky-column" aria-label="Resultado de la evaluación">
+            <section class="result-card" id="resultCard" aria-live="polite">
+              <div class="result-top">
+                <div class="result-kicker"><span class="result-dot" id="resultDot"></span> Resultado de orientación</div>
+                <div class="result-title" id="resultTitle">Pendiente de evaluación</div>
+                <p class="result-summary" id="resultSummary">Completa los datos principales para organizar los hallazgos registrados.</p>
+              </div>
+              <div class="result-body">
+                <div class="result-empty" id="emptyState"><div class="result-empty-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><strong>El resultado aparecerá aquí</strong><p>Se mostrarán las señales detectadas, su interpretación y el siguiente paso orientativo.</p></div>
+                <div class="result-dynamic" id="resultDynamic" hidden>
+                  <div class="result-detail" id="reportDetails"></div>
+                  <div class="status-box" id="statusBox"><h3 id="statusHeading"></h3><p id="statusText"></p></div>
+                  <div class="reason-heading">Hallazgos relevantes</div><div class="reason-list" id="reasonList"></div>
+                  <div class="reason-heading">Conducta orientativa</div><div class="reason" id="nextStep"></div>
+                  <button class="btn btn-secondary result-action" id="printBtn" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Imprimir / guardar PDF</button>
+                  <p class="form-disclaimer">El resultado no confirma ni descarta sepsis. Si el estado clínico preocupa, prevalece la valoración profesional.</p>
+                </div>
+              </div>
+            </section>
+            <section class="metric-panel"><div class="metric-header"><h3>Resumen de mediciones</h3><span>Valores ingresados</span></div><div class="metric-grid">
+              <div class="metric"><span>Frecuencia cardíaca</span><strong id="mHr">—</strong><small>lpm</small></div>
+              <div class="metric"><span>Frecuencia respiratoria</span><strong id="mRr">—</strong><small>rpm</small></div>
+              <div class="metric"><span>Temperatura</span><strong id="mTemp">—</strong><small>°C</small></div>
+              <div class="metric"><span>Saturación O₂</span><strong id="mSpo2">—</strong><small>%</small></div>
+            </div></section>
+          </aside>
+        </div>
       </section>
 
-      <aside class="results-sticky" aria-label="Resultado y guía">
-        <section class="result-card" id="resultCard" aria-labelledby="result-title" aria-live="polite">
-          <div class="result-top">
-            <div class="result-label"><span class="result-dot" id="resultDot"></span> Resultado de orientación</div>
-            <div class="result-title" id="result-title">Esperando evaluación</div>
-            <p class="result-desc" id="resultSummary">Completa los datos básicos y selecciona «Analizar señales de alarma» para generar una orientación inicial.</p>
-          </div>
-          <div class="result-content">
-            <div class="result-empty" id="emptyState"><div class="radar"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><strong>Tu evaluación aparecerá aquí</strong><p>El resultado explicará qué datos generan la alerta y cuál sería el siguiente paso orientativo.</p></div>
-            <div id="resultDynamic" hidden>
-              <div id="statusBox" class="result-status neutral"><h3 id="statusHeading"></h3><p id="statusText"></p></div>
-              <div id="reportDetails" class="reason" style="font-size:10px;margin-bottom:12px;line-height:1.7"></div>
-              <div class="reason-heading">Hallazgos que influyen</div>
-              <div class="reason-list" id="reasonList"></div>
-              <div class="reason-heading">Siguiente paso sugerido</div>
-              <div id="nextStep" class="reason" style="font-size:11px"></div>
-              <button class="btn btn-secondary result-action" id="printBtn" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Imprimir / guardar informe PDF</button>
-            </div>
-          </div>
-        </section>
+      <!-- VIEW: DASHBOARD -->
+      <section class="view" id="view-dashboard">
+        <div class="page-heading"><div><p class="eyebrow">SepsiSignal · Área de trabajo</p><h1>Panel general</h1><p>Resumen de actividad de esta sesión de demostración.</p></div><div class="heading-actions"><button class="btn btn-primary" data-go="evaluation" type="button">+ Nueva evaluación</button></div></div>
+        <div class="dashboard-banner"><div><h2>Organización de la evaluación clínica.</h2><p>Registra los datos disponibles, revisa las señales de alarma detectadas y genera una hoja de orientación imprimible. Este prototipo está diseñado únicamente para fines académicos.</p></div></div>
+        <div class="dashboard-stats">
+          <article class="stat-card"><div class="stat-label">Evaluaciones en esta sesión</div><div class="stat-value" id="statTotal">0</div><div class="stat-foot">No se guardan al cerrar sesión</div></article>
+          <article class="stat-card"><div class="stat-label">Alertas de atención inmediata</div><div class="stat-value" id="statUrgent">0</div><div class="stat-foot">Según reglas de demostración</div></article>
+          <article class="stat-card"><div class="stat-label">Última evaluación</div><div class="stat-value" id="statLast" style="font-size:17px">—</div><div class="stat-foot">Hora local de esta sesión</div></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="simple-card"><h3>Flujo de trabajo</h3><p>La página está organizada para que la información prioritaria sea fácil de localizar.</p><div class="workflow">
+            <div class="workflow-row"><span class="workflow-number">1</span><div><strong>Registrar los datos disponibles</strong><p>Contexto clínico, signos vitales y señales observadas.</p></div></div>
+            <div class="workflow-row"><span class="workflow-number">2</span><div><strong>Revisar la orientación generada</strong><p>El sistema señala qué elementos activaron una alerta demostrativa.</p></div></div>
+            <div class="workflow-row"><span class="workflow-number">3</span><div><strong>Imprimir si necesitas una copia</strong><p>La hoja de orientación se puede imprimir o guardar como PDF.</p></div></div>
+          </div><div class="home-note"><strong>Importante:</strong> una evaluación sin alertas detectadas no descarta sepsis. Nunca retrases una atención urgente para completar el formulario.</div></article>
+          <article class="simple-card"><h3>Atajo</h3><p>Empieza por una evaluación nueva. Para demostrar el funcionamiento, usa el caso ficticio que viene incluido.</p><button class="btn btn-primary" type="button" data-go="evaluation">Abrir formulario de evaluación</button><div style="height:20px"></div><h3>Proyecto académico</h3><p><strong>SepsiSignal</strong> · Proyecto de emprendimiento en salud digital.<br>Universidad del Sinú, sede Santillana.</p></article>
+        </div>
+        <div class="footer-note">Los conteos de esta pantalla solo reflejan las evaluaciones realizadas en la sesión actual del navegador. No son estadísticas clínicas institucionales.</div>
+      </section>
 
-        <section class="mini-panel" aria-labelledby="snapshot-title">
-          <div class="mini-header"><h3 id="snapshot-title">Resumen de mediciones</h3><span>Valores ingresados</span></div>
-          <div class="metric-grid">
-            <div class="metric"><div class="metric-top">Frecuencia cardíaca <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-7 4 14 2-7h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div><div class="metric-value" id="mHr">—</div><div class="metric-sub">latidos/min</div></div>
-            <div class="metric"><div class="metric-top">Respiración <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v7m0 0c-2-4-5-4-7 1-2 5 1 8 7 7m0-8c2-4 5-4 7 1 2 5-1 8-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="metric-value" id="mRr">—</div><div class="metric-sub">respiraciones/min</div></div>
-            <div class="metric"><div class="metric-top">Temperatura <svg viewBox="0 0 24 24" fill="none"><path d="M10 14.7V5a2 2 0 1 1 4 0v9.7a4 4 0 1 1-4 0Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 12v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="metric-value" id="mTemp">—</div><div class="metric-sub">grados Celsius</div></div>
-            <div class="metric"><div class="metric-top">SpO₂ <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-8-4.4-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.6-8 10-8 10Z" stroke="currentColor" stroke-width="1.5"/><path d="M4 12h4l2-3 3 6 2-3h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="metric-value" id="mSpo2">—</div><div class="metric-sub">saturación de oxígeno</div></div>
-          </div>
-        </section>
+      <!-- VIEW: HISTORY -->
+      <section class="view" id="view-history">
+        <div class="page-heading"><div><p class="eyebrow">Actividad local</p><h1>Registros de sesión</h1><p>Consulta las evaluaciones creadas mientras esta página permanece abierta. El historial es temporal y se elimina al cerrar sesión o recargar la página.</p></div><div class="heading-actions"><button class="btn btn-primary" data-go="evaluation" type="button">+ Nueva evaluación</button></div></div>
+        <section class="table-panel"><div class="table-head"><h3>Evaluaciones realizadas</h3><span id="historyCount">0 registros</span></div><div class="table-scroll"><table><thead><tr><th>Hora</th><th>Código</th><th>Edad</th><th>Resultado orientativo</th><th>Acción</th></tr></thead><tbody id="historyBody"></tbody></table></div><div id="historyEmpty" class="empty-table">Todavía no hay evaluaciones en esta sesión.<br>Cuando completes un formulario, el registro aparecerá aquí.</div></section>
+        <div class="footer-note">El historial local no es una historia clínica electrónica. Utiliza exclusivamente casos ficticios y no introduzcas nombres, documentos ni otra información identificable.</div>
+      </section>
 
-        <section class="mini-panel" aria-labelledby="guide-title">
-          <div class="mini-header"><h3 id="guide-title">Principios de seguridad</h3><span>Siempre</span></div>
-          <div class="guide"><div class="guide-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div><strong>No esperar una puntuación</strong><p>El deterioro clínico o una preocupación importante requiere valoración aunque el formulario no genere alerta.</p></div></div>
-          <div class="guide"><div class="guide-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.6"/><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong>Descartar no es el objetivo</strong><p>Una evaluación sin señales marcadas no descarta infección grave ni sepsis.</p></div></div>
-          <div class="guide"><div class="guide-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong>Usar el protocolo local</strong><p>Activa la ruta institucional o los servicios de emergencia según la situación clínica.</p></div></div>
-        </section>
-      </aside>
-    </div>
-
-    <footer class="footer">
-      <div><strong>SepsiSignal · prototipo de emprendimiento en salud digital.</strong><br>Versión educativa, no destinada al diagnóstico ni al tratamiento de pacientes reales.</div>
-      <div>Marco de referencia: <a href="https://www.nice.org.uk/guidance/ng253" target="_blank" rel="noopener noreferrer">NICE NG253</a> · <a href="https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines" target="_blank" rel="noopener noreferrer">Surviving Sepsis Campaign</a> · <a href="https://www.cdc.gov/sepsis/about/" target="_blank" rel="noopener noreferrer">CDC: Sepsis</a></div>
-    </footer>
-  </main>
-</div>
+      <!-- VIEW: ABOUT / GUIDE -->
+      <section class="view" id="view-guide">
+        <div class="page-heading"><div><p class="eyebrow">Información del prototipo</p><h1>Acerca del proyecto</h1><p>Propósito, alcance y límites de la herramienta desarrollada como proyecto académico de emprendimiento.</p></div></div>
+        <div class="guide-grid">
+          <article class="guide-card"><h3>Propósito</h3><p>Apoyar la organización inicial de datos y el reconocimiento de señales de alarma que, en un contexto de posible infección, requieren evaluación clínica oportuna.</p></article>
+          <article class="guide-card"><h3>Alcance actual</h3><p>Prototipo educativo para adultos. Usa reglas demostrativas transparentes y genera una orientación explicada; no calcula NEWS2 ni qSOFA y no se integra con sistemas hospitalarios.</p></article>
+          <article class="guide-card"><h3>Señales que exigen atención rápida</h3><ul><li>Confusión nueva o descenso del nivel de conciencia.</li><li>Dificultad respiratoria marcada o cambio importante en la oxigenación.</li><li>Presión arterial muy baja, desmayo o deterioro acelerado.</li><li>Piel azulada, moteada o erupción que no palidece a la presión.</li></ul></article>
+          <article class="guide-card"><h3>Antes de un uso clínico</h3><p>La lógica de evaluación requiere revisión por profesionales, validación en la población y entorno previstos, pruebas de usabilidad y evaluación de privacidad y requisitos regulatorios aplicables.</p></article>
+        </div>
+        <div class="notice-block"><strong>Limitación de seguridad:</strong> esta versión no es un dispositivo médico validado. No se debe utilizar para diagnosticar o descartar sepsis ni para decidir la atención de pacientes reales. Las urgencias se gestionan según el protocolo institucional y la valoración del equipo de salud.</div>
+        <div class="footer-note">Proyecto académico de emprendimiento · Universidad del Sinú, sede Santillana. La referencia institucional identifica el contexto académico del proyecto; no implica aprobación institucional ni validación clínica.</div>
+      </section>
+    </main>
+  </div>
+</section>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 (() => {
+  const loginScreen = document.getElementById('loginScreen');
+  const appShell = document.getElementById('appShell');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
   const form = document.getElementById('triageForm');
-  const resultCard = document.getElementById('resultCard');
-  const resultDynamic = document.getElementById('resultDynamic');
   const toast = document.getElementById('toast');
   let toastTimer;
+  let sessionUser = 'Usuario';
+  let records = [];
+  let latestReport = null;
 
   const warningLabels = {
-    cyanosis: 'Coloración azulada, piel moteada o aspecto ceniciento reportado.',
-    rash: 'Erupción roja o morada que no palidece a la presión.',
-    urine: 'Disminución de la diuresis reportada.',
-    oxygen: 'Necesidad nueva o creciente de oxígeno.',
-    decline: 'Deterioro rápido o empeoramiento reciente.',
-    pain: 'Dolor extremo, malestar intenso o escalofríos importantes.',
-    immuno: 'Posible inmunosupresión: eleva la preocupación clínica.',
-    procedure: 'Procedimiento, cirugía o dispositivo reciente: considerar riesgo de infección.'
+    cyanosis:'Coloración azulada, piel moteada o aspecto ceniciento reportado.',
+    rash:'Erupción roja o morada que no palidece a la presión.',
+    urine:'Disminución de la diuresis reportada.',
+    oxygen:'Necesidad nueva o creciente de oxígeno.',
+    decline:'Deterioro rápido o empeoramiento reciente.',
+    pain:'Dolor extremo, malestar intenso o escalofríos importantes.',
+    immuno:'Posible inmunosupresión: eleva la preocupación clínica.',
+    procedure:'Procedimiento, cirugía o dispositivo reciente: considerar riesgo de infección.'
   };
-
-  const val = id => document.getElementById(id).value;
+  const byId = id => document.getElementById(id);
+  const val = id => byId(id).value;
   const num = id => val(id) === '' ? null : Number(val(id));
   const selected = name => document.querySelector(`input[name="${name}"]:checked`)?.value ?? null;
   const checkedWarnings = () => [...document.querySelectorAll('input[name="warning"]:checked')].map(x => x.value);
+  const timeNow = () => new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
 
-  function notify(message) {
-    toast.textContent = message;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-  }
+  function notify(message){toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),3200)}
 
-  function validRange(id, min, max, label) {
-    const n = num(id);
-    if (n === null || !Number.isFinite(n) || n < min || n > max) {
-      document.getElementById(id).focus();
-      notify(`Revisa el campo «${label}» (${min}–${max}).`);
-      return false;
-    }
-    return true;
-  }
-
-  function updateMetrics() {
-    document.getElementById('mHr').textContent = val('hr') || '—';
-    document.getElementById('mRr').textContent = val('rr') || '—';
-    document.getElementById('mTemp').textContent = val('temp') ? `${Number(val('temp')).toFixed(1)}°` : '—';
-    document.getElementById('mSpo2').textContent = val('spo2') ? `${val('spo2')}%` : '—';
-  }
-  ['hr','rr','temp','spo2'].forEach(id => document.getElementById(id).addEventListener('input', updateMetrics));
-
-  function renderResult(result) {
-    resultCard.classList.add('has-result');
-    document.getElementById('resultDot').style.background = result.color === 'red' ? '#cc4652' : result.color === 'amber' ? '#e2a13c' : result.color === 'green' ? '#229c70' : '#8797a5';
-    document.getElementById('result-title').textContent = result.title;
-    document.getElementById('resultSummary').textContent = result.summary;
-    const box = document.getElementById('statusBox');
-    box.className = `result-status ${result.color}`;
-    document.getElementById('statusHeading').textContent = result.statusHeading;
-    document.getElementById('statusText').textContent = result.statusText;
-    const code = val('patientCode').trim() || 'No indicado';
-    const age = val('age') || '—';
-    const source = val('source') || 'No definido';
-    document.getElementById('reportDetails').textContent = `Registro: ${code} · Edad: ${age} años · Foco: ${source} · FC: ${val('hr')} lpm · FR: ${val('rr')}/min · Temperatura: ${Number(val('temp')).toFixed(1)} °C · PAS: ${val('sbp')} mmHg · SpO₂: ${val('spo2')}%`;
-    const list = document.getElementById('reasonList');
-    list.replaceChildren();
-    if (!result.reasons.length) {
-      const item = document.createElement('div'); item.className = 'reason';
-      item.innerHTML = '<span class="reason-mark green">✓</span><span>No se activaron las señales incluidas en este prototipo con los datos registrados.</span>';
-      list.appendChild(item);
-    } else {
-      result.reasons.forEach(reason => {
-        const item = document.createElement('div'); item.className = 'reason';
-        const mark = document.createElement('span'); mark.className = `reason-mark ${reason.kind || result.color}`; mark.textContent = reason.kind === 'amber' ? '!' : reason.kind === 'red' ? '!' : '•';
-        const text = document.createElement('span'); text.textContent = reason.text;
-        item.append(mark, text); list.appendChild(item);
-      });
-    }
-    const next = document.getElementById('nextStep');
-    next.replaceChildren();
-    const mark = document.createElement('span'); mark.className = `reason-mark ${result.color}`; mark.textContent = '→';
-    const text = document.createElement('span'); text.textContent = result.next;
-    next.append(mark, text);
-    resultDynamic.hidden = false;
-    document.getElementById('emptyState').hidden = true;
-    document.getElementById('printBtn').focus({preventScroll:true});
-    resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
-
-  form.addEventListener('submit', e => {
+  // Demo-only access: no credentials are checked, transmitted, or persisted.
+  loginForm.addEventListener('submit', e => {
     e.preventDefault();
-    if (!validRange('age',16,120,'Edad')) return;
-    for (const [id,min,max,label] of [
-      ['hr',20,300,'Frecuencia cardíaca'],['rr',4,100,'Frecuencia respiratoria'],['temp',25,45,'Temperatura'],
-      ['sbp',30,300,'Presión sistólica'],['spo2',40,100,'Saturación de oxígeno']
-    ]) if (!validRange(id,min,max,label)) return;
-    if (selected('infection') === null) { document.getElementById('infectionYes').focus(); notify('Selecciona si existe sospecha de infección.'); return; }
-    if (!val('mental')) { document.getElementById('mental').focus(); notify('Selecciona el estado mental actual.'); return; }
-
-    const age=num('age'), hr=num('hr'), rr=num('rr'), temp=num('temp'), sbp=num('sbp'), spo2=num('spo2');
-    const infection=selected('infection'), pregnancy=val('pregnancy'), mental=val('mental'), warnings=checkedWarnings();
-    const reasons=[]; let critical=false, moderate=0;
-    const add=(text,kind='amber')=>reasons.push({text,kind});
-
-    // Regla demostrativa conservadora; no es NEWS2, qSOFA ni un instrumento validado.
-    if (sbp <= 90) {critical=true;add(`Presión sistólica ${sbp} mmHg: valor de alarma clínica importante.`,'red');}
-    else if (sbp <= 100) {moderate++;add(`Presión sistólica ${sbp} mmHg: presión baja que requiere interpretación clínica.`,'amber');}
-    if (rr >= 25) {critical=true;add(`Frecuencia respiratoria ${rr}/min: respiración marcadamente acelerada.`,'red');}
-    else if (rr >= 21) {moderate++;add(`Frecuencia respiratoria ${rr}/min: taquipnea que aumenta la preocupación.`,'amber');}
-    if (spo2 <= 91) {critical=true;add(`Saturación ${spo2}%: valor muy bajo en muchas personas; confirmar medición y valorar de inmediato.`,'red');}
-    else if (spo2 <= 94) {moderate++;add(`Saturación ${spo2}%: oxigenación reducida; interpretar según el valor basal y enfermedades previas.`,'amber');}
-    if (hr >= 130) {critical=true;add(`Frecuencia cardíaca ${hr}/min: taquicardia marcada.`,'red');}
-    else if (hr >= 100) {moderate++;add(`Frecuencia cardíaca ${hr}/min: taquicardia.`,'amber');}
-    if (temp < 35) {critical=true;add(`Temperatura ${temp.toFixed(1)} °C: hipotermia que requiere valoración inmediata.`,'red');}
-    else if (temp < 36 || temp >= 38) {moderate++;add(`Temperatura ${temp.toFixed(1)} °C: temperatura baja o fiebre.`,'amber');}
-    if (mental === 'confused') {critical=true;add('Confusión nueva o alteración de conciencia: señal de alarma de disfunción orgánica.','red');}
-    if (mental === 'unknown') {moderate++;add('Estado mental no evaluado: falta un dato clínico importante.','amber');}
-    if (warnings.includes('cyanosis')) {critical=true;add(warningLabels.cyanosis,'red');}
-    if (warnings.includes('rash')) {critical=true;add(warningLabels.rash,'red');}
-    if (warnings.includes('oxygen')) {moderate++;add(warningLabels.oxygen,'amber');}
-    if (warnings.includes('decline')) {critical=true;add(warningLabels.decline,'red');}
-    if (warnings.includes('urine')) {moderate++;add(warningLabels.urine,'amber');}
-    if (warnings.includes('pain')) {moderate++;add(warningLabels.pain,'amber');}
-    if (warnings.includes('immuno')) {moderate++;add(warningLabels.immuno,'amber');}
-    if (warnings.includes('procedure')) {moderate++;add(warningLabels.procedure,'amber');}
-    if (infection === 'yes') add(`Se registra sospecha o confirmación de infección${val('source') !== 'No definido' ? ` con posible foco ${val('source').toLowerCase()}` : ''}. La infección más signos de alarma requiere considerar sepsis y otras causas graves.`, 'neutral');
-    if (infection === 'unknown') {moderate++;add('La presencia de infección no está clara; completar la evaluación clínica.','amber');}
-
-    const notes = val('notes').trim();
-    if (notes) add(`Observaciones registradas: ${notes}`,'neutral');
-    if (num('dbp') !== null) add(`Presión diastólica registrada: ${num('dbp')} mmHg. Interpretar junto con la presión sistólica y el contexto clínico.`,'neutral');
-
-    let result;
-    if (pregnancy !== 'no') {
-      result = {
-        color:'red', title:'Ruta clínica especial',
-        summary:'Este prototipo no está diseñado para embarazo ni posparto reciente; no debe asignar un nivel de riesgo con su algoritmo general.',
-        statusHeading:'Requiere una vía de evaluación específica',
-        statusText:'Solicita valoración clínica urgente según el estado de la paciente y utiliza el protocolo específico de embarazo o posparto. Si hay signos de alarma, activa la atención de emergencia.',
-        reasons:[{text:'Embarazo o posparto reciente seleccionado: el algoritmo general no es aplicable.',kind:'red'},...reasons],
-        next:'No utilizar la clasificación de este prototipo. Seguir la ruta obstétrica/institucional y priorizar cualquier deterioro clínico.'
-      };
-    } else if (critical) {
-      result = {
-        color:'red', title:'Alerta clínica inmediata',
-        summary: infection === 'yes' ? 'Se registran posibles signos de deterioro en una persona con sospecha de infección. Se requiere evaluación urgente para descartar sepsis y otras emergencias.' : 'Se registran signos que pueden indicar deterioro clínico importante. El formulario no puede determinar la causa.',
-        statusHeading:'Prioridad: atención de emergencia',
-        statusText:'Activa el protocolo local de respuesta clínica/emergencia y solicita valoración inmediata. No esperes completar más datos ni repetir la puntuación para pedir ayuda.',
-        reasons,
-        next:'Evaluación médica inmediata, verificación de signos vitales y valoración de disfunción orgánica según el protocolo institucional. La sepsis es un diagnóstico clínico; esta página no la confirma.'
-      };
-    } else if (moderate >= 2 || (infection === 'yes' && moderate >= 1)) {
-      result = {
-        color:'amber', title:'Valoración prioritaria',
-        summary: infection === 'yes' ? 'La combinación de sospecha de infección y hallazgos registrados justifica una valoración clínica prioritaria. No equivale a un diagnóstico de sepsis.' : 'Hay hallazgos que merecen revisión clínica en contexto, aunque no se hayan activado las señales críticas de este prototipo.',
-        statusHeading:'Revisión clínica pronta',
-        statusText:'Comunica los hallazgos al profesional responsable, verifica las mediciones y considera la evolución, antecedentes y posibles causas alternativas.',
-        reasons,
-        next:'Revisión clínica prioritaria según el contexto y protocolo local. Repetir signos vitales y escalar si hay empeoramiento. Si aparece un signo de alarma, activar atención inmediata.'
-      };
-    } else if (moderate === 1) {
-      result = {
-        color:'amber', title:'Mantener vigilancia clínica',
-        summary:'Se registró al menos un hallazgo que requiere interpretación en contexto. Una sola señal puede ser importante, especialmente si el paciente está empeorando.',
-        statusHeading:'No ignorar el hallazgo',
-        statusText:'Confirma la medición, compara con el estado basal y valora al paciente de forma integral. Si existe sospecha de infección, la decisión no debe depender solo de esta página.',
-        reasons,
-        next:'Valoración por un profesional según el contexto. Reevaluar y escalar de inmediato ante deterioro o preocupación clínica.'
-      };
-    } else {
-      result = {
-        color:'green', title:'Sin alerta detectada',
-        summary:'Con los datos introducidos, esta lógica demostrativa no detectó las señales incluidas. Esto no descarta sepsis ni otra enfermedad grave.',
-        statusHeading:'Resultado limitado: no descarta sepsis',
-        statusText:'Mantén el juicio clínico. El paciente puede deteriorarse o presentar signos no incluidos aquí; la preocupación del equipo prevalece sobre un resultado sin alerta.',
-        reasons,
-        next:'Integrar historia clínica y exploración; seguir el protocolo local. Si persiste sospecha de infección grave, hay empeoramiento o preocupación clínica, solicitar valoración profesional sin demora.'
-      };
-    }
-    renderResult(result);
-    updateMetrics();
+    const user = val('loginUser').trim();
+    const password = val('loginPassword');
+    if (!user || !password) { loginError.textContent='Completa usuario y contraseña para continuar.'; return; }
+    sessionUser = user;
+    byId('accountName').textContent = user;
+    byId('userAvatar').textContent = user.split(/\s+/).slice(0,2).map(part=>part[0]).join('').toUpperCase().slice(0,2) || 'US';
+    loginError.textContent='';
+    loginScreen.classList.add('hidden');appShell.classList.remove('hidden');
+    showView('evaluation');
+    notify('Acceso de demostración iniciado. Puedes comenzar la evaluación.');
+  });
+  byId('togglePassword').addEventListener('click',()=>{
+    const input=byId('loginPassword');const show=input.type==='password';input.type=show?'text':'password';byId('togglePassword').textContent=show?'Ocultar':'Mostrar';byId('togglePassword').setAttribute('aria-label',show?'Ocultar contraseña':'Mostrar contraseña');
+  });
+  byId('logoutBtn').addEventListener('click',()=>{
+    if (!confirm('¿Cerrar la sesión de demostración? El historial temporal se eliminará.')) return;
+    records=[];latestReport=null;form.reset();resetResult();renderHistory();updateDashboard();
+    byId('loginUser').value='';byId('loginPassword').value='';byId('accountName').textContent='Usuario';byId('userAvatar').textContent='US';
+    appShell.classList.add('hidden');loginScreen.classList.remove('hidden');byId('loginUser').focus();notify('Sesión cerrada. Se eliminó el historial temporal.');
   });
 
-  document.getElementById('demoBtn').addEventListener('click', () => {
-    document.getElementById('patientCode').value='DEMO-001';
-    document.getElementById('age').value='64';
-    document.getElementById('infectionYes').checked=true;
-    document.getElementById('source').value='Respiratorio';
-    document.getElementById('pregnancy').value='no';
-    document.getElementById('hr').value='132';
-    document.getElementById('rr').value='28';
-    document.getElementById('temp').value='39.2';
-    document.getElementById('sbp').value='86';
-    document.getElementById('dbp').value='54';
-    document.getElementById('spo2').value='90';
-    document.getElementById('mental').value='confused';
-    document.querySelectorAll('input[name="warning"]').forEach(x=>x.checked=false);
-    document.querySelector('input[name="warning"][value="decline"]').checked=true;
-    document.getElementById('notes').value='Caso ficticio para probar la interfaz; no corresponde a un paciente real.';
-    updateMetrics();
-    notify('Caso ficticio cargado. Pulsa «Analizar señales de alarma».');
-  });
-
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    setTimeout(() => {
-      resultCard.classList.remove('has-result');
-      resultDynamic.hidden=true;
-      document.getElementById('emptyState').hidden=false;
-      document.getElementById('resultDot').style.background='#aab7c2';
-      document.getElementById('result-title').textContent='Esperando evaluación';
-      document.getElementById('resultSummary').textContent='Completa los datos básicos y selecciona «Analizar señales de alarma» para generar una orientación inicial.';
-      updateMetrics();
-    },0);
-  });
-  document.getElementById('printBtn').addEventListener('click', () => window.print());
-  function wireNav(id, action) {
-    const el = document.getElementById(id);
-    el.addEventListener('click', action);
-    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); action(); } });
+  const viewNames={evaluation:'Nueva evaluación',dashboard:'Panel general',history:'Registros de sesión',guide:'Acerca del proyecto'};
+  function showView(name){
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));
+    document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+    byId('breadcrumbCurrent').textContent=viewNames[name]||'SepsiSignal';
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(name==='history')renderHistory(); if(name==='dashboard')updateDashboard();
   }
-  wireNav('navEval', () => document.getElementById('form-title').scrollIntoView({behavior:'smooth',block:'start'}));
-  wireNav('navReport', () => {
-    if (resultCard.classList.contains('has-result')) window.print();
-    else { document.getElementById('form-title').scrollIntoView({behavior:'smooth',block:'start'}); notify('Analiza los datos para generar un informe.'); }
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
+
+  function validRange(id,min,max,label){const n=num(id);if(n===null||!Number.isFinite(n)||n<min||n>max){byId(id).focus();notify(`Revisa «${label}». Ingresa un valor entre ${min} y ${max}.`);return false}return true}
+  function updateMetrics(){
+    byId('mHr').textContent=val('hr')||'—';byId('mRr').textContent=val('rr')||'—';byId('mTemp').textContent=val('temp')?Number(val('temp')).toFixed(1):'—';byId('mSpo2').textContent=val('spo2')||'—';
+  }
+  ['hr','rr','temp','spo2'].forEach(id=>byId(id).addEventListener('input',updateMetrics));
+
+  function reportDetailsFor(data){
+    const code=data.code||'No indicado';
+    return `Registro: ${code} · Edad: ${data.age} años · Foco: ${data.source} · FC: ${data.hr} lpm · FR: ${data.rr}/min · Temperatura: ${Number(data.temp).toFixed(1)} °C · PAS: ${data.sbp} mmHg · SpO₂: ${data.spo2}%${data.dbp!==''&&data.dbp!=null?' · PAD: '+data.dbp+' mmHg':''}`;
+  }
+  function paintResult(result, record){
+    latestReport={result,record};
+    byId('resultDot').style.background=result.color==='red'?'#b73542':result.color==='amber'?'#c18a35':result.color==='green'?'#27815f':'#7c8e99';
+    byId('resultTitle').textContent=result.title;
+    byId('resultSummary').textContent=result.summary;
+    const box=byId('statusBox');box.className=`status-box ${result.color}`;
+    byId('statusHeading').textContent=result.statusHeading;byId('statusText').textContent=result.statusText;
+    byId('reportDetails').textContent=reportDetailsFor(record);
+    const list=byId('reasonList');list.replaceChildren();
+    if(!result.reasons.length){const item=document.createElement('div');item.className='reason';const mark=document.createElement('span');mark.className='reason-mark green';mark.textContent='✓';const text=document.createElement('span');text.textContent='No se activaron las señales incluidas en este prototipo con los datos registrados.';item.append(mark,text);list.append(item)}
+    else result.reasons.forEach(reason=>{const item=document.createElement('div');item.className='reason';const mark=document.createElement('span');mark.className=`reason-mark ${reason.kind||result.color}`;mark.textContent=reason.kind==='neutral'?'•':'!';const text=document.createElement('span');text.textContent=reason.text;item.append(mark,text);list.append(item)});
+    const next=byId('nextStep');next.replaceChildren();const mark=document.createElement('span');mark.className=`reason-mark ${result.color}`;mark.textContent='→';const text=document.createElement('span');text.textContent=result.next;next.append(mark,text);
+    byId('resultDynamic').hidden=false;byId('emptyState').hidden=true;
+  }
+
+  function evaluate(data){
+    const {age,hr,rr,temp,sbp,spo2,dbp,infection,pregnancy,mental,warnings,notes,source}=data;
+    const reasons=[];let critical=false,moderate=0;const add=(text,kind='amber')=>reasons.push({text,kind});
+    // Reglas demostrativas: no corresponden a una escala validada.
+    if(sbp<=90){critical=true;add(`Presión sistólica ${sbp} mmHg: valor de alarma clínica importante.`,'red')}else if(sbp<=100){moderate++;add(`Presión sistólica ${sbp} mmHg: presión baja que requiere interpretación clínica.`,'amber')}
+    if(rr>=25){critical=true;add(`Frecuencia respiratoria ${rr}/min: respiración marcadamente acelerada.`,'red')}else if(rr>=21){moderate++;add(`Frecuencia respiratoria ${rr}/min: taquipnea que aumenta la preocupación.`,'amber')}
+    if(spo2<=91){critical=true;add(`Saturación ${spo2}%: valor muy bajo en muchas personas; confirmar medición y valorar de inmediato.`,'red')}else if(spo2<=94){moderate++;add(`Saturación ${spo2}%: oxigenación reducida; interpretar según el valor basal y enfermedades previas.`,'amber')}
+    if(hr>=130){critical=true;add(`Frecuencia cardíaca ${hr}/min: taquicardia marcada.`,'red')}else if(hr>=100){moderate++;add(`Frecuencia cardíaca ${hr}/min: taquicardia.`,'amber')}
+    if(temp<35){critical=true;add(`Temperatura ${temp.toFixed(1)} °C: hipotermia que requiere valoración inmediata.`,'red')}else if(temp<36||temp>=38){moderate++;add(`Temperatura ${temp.toFixed(1)} °C: temperatura baja o fiebre.`,'amber')}
+    if(mental==='confused'){critical=true;add('Confusión nueva o alteración de conciencia: señal de alarma de disfunción orgánica.','red')}
+    if(mental==='unknown'){moderate++;add('Estado mental no evaluado: falta un dato clínico importante.','amber')}
+    if(warnings.includes('cyanosis')){critical=true;add(warningLabels.cyanosis,'red')}
+    if(warnings.includes('rash')){critical=true;add(warningLabels.rash,'red')}
+    if(warnings.includes('oxygen')){moderate++;add(warningLabels.oxygen,'amber')}
+    if(warnings.includes('decline')){critical=true;add(warningLabels.decline,'red')}
+    if(warnings.includes('urine')){moderate++;add(warningLabels.urine,'amber')}
+    if(warnings.includes('pain')){moderate++;add(warningLabels.pain,'amber')}
+    if(warnings.includes('immuno')){moderate++;add(warningLabels.immuno,'amber')}
+    if(warnings.includes('procedure')){moderate++;add(warningLabels.procedure,'amber')}
+    if(infection==='yes')add(`Se registra sospecha o confirmación de infección${source!=='No definido'?` con posible foco ${source.toLowerCase()}`:''}. La infección más signos de alarma requiere considerar sepsis y otras causas graves.`,'neutral');
+    if(infection==='unknown'){moderate++;add('La presencia de infección no está clara; completar la evaluación clínica.','amber')}
+    if(notes.trim())add(`Observaciones registradas: ${notes.trim()}`,'neutral');
+    if(dbp!=='')add(`Presión diastólica registrada: ${dbp} mmHg. Interpretar junto con la presión sistólica y el contexto clínico.`,'neutral');
+    let result;
+    if(pregnancy!=='no')result={color:'red',title:'Ruta clínica especial',summary:'Este prototipo no está diseñado para embarazo ni posparto reciente; no debe asignar un nivel de riesgo con su algoritmo general.',statusHeading:'Requiere una vía de evaluación específica',statusText:'Solicita valoración clínica urgente según el estado de la paciente y utiliza el protocolo específico de embarazo o posparto. Si hay signos de alarma, activa la atención de emergencia.',reasons:[{text:'Embarazo o posparto reciente seleccionado: el algoritmo general no es aplicable.',kind:'red'},...reasons],next:'No utilizar la clasificación de este prototipo. Seguir la ruta obstétrica/institucional y priorizar cualquier deterioro clínico.'};
+    else if(critical)result={color:'red',title:'Alerta clínica inmediata',summary:infection==='yes'?'Se registran posibles signos de deterioro en una persona con sospecha de infección. Se requiere evaluación urgente para descartar sepsis y otras emergencias.':'Se registran signos que pueden indicar deterioro clínico importante. El formulario no puede determinar la causa.',statusHeading:'Prioridad: atención de emergencia',statusText:'Activa el protocolo local de respuesta clínica/emergencia y solicita valoración inmediata. No esperes completar más datos ni repetir la evaluación para pedir ayuda.',reasons,next:'Evaluación médica inmediata, verificación de signos vitales y valoración de disfunción orgánica según el protocolo institucional. La sepsis es un diagnóstico clínico; esta página no la confirma.'};
+    else if(moderate>=2||(infection==='yes'&&moderate>=1))result={color:'amber',title:'Valoración prioritaria',summary:infection==='yes'?'La combinación de sospecha de infección y hallazgos registrados justifica una valoración clínica prioritaria. No equivale a un diagnóstico de sepsis.':'Hay hallazgos que merecen revisión clínica en contexto, aunque no se hayan activado las señales críticas de este prototipo.',statusHeading:'Revisión clínica pronta',statusText:'Comunica los hallazgos al profesional responsable, verifica las mediciones y considera la evolución, antecedentes y posibles causas alternativas.',reasons,next:'Revisión clínica prioritaria según el contexto y protocolo local. Repetir signos vitales y escalar si hay empeoramiento. Si aparece un signo de alarma, activar atención inmediata.'};
+    else if(moderate===1)result={color:'amber',title:'Mantener vigilancia clínica',summary:'Se registró al menos un hallazgo que requiere interpretación en contexto. Una sola señal puede ser importante, especialmente si el paciente está empeorando.',statusHeading:'No ignorar el hallazgo',statusText:'Confirma la medición, compara con el estado basal y valora al paciente de forma integral. Si existe sospecha de infección, la decisión no debe depender solo de esta página.',reasons,next:'Valoración por un profesional según el contexto. Reevaluar y escalar de inmediato ante deterioro o preocupación clínica.'};
+    else result={color:'green',title:'Sin alerta detectada',summary:'Con los datos introducidos, esta lógica demostrativa no detectó las señales incluidas. Esto no descarta sepsis ni otra enfermedad grave.',statusHeading:'Resultado limitado: no descarta sepsis',statusText:'Mantén el juicio clínico. El paciente puede deteriorarse o presentar signos no incluidos aquí; la preocupación del equipo prevalece sobre un resultado sin alerta.',reasons,next:'Integrar historia clínica y exploración; seguir el protocolo local. Si persiste sospecha de infección grave, hay empeoramiento o preocupación clínica, solicitar valoración profesional sin demora.'};
+    return result;
+  }
+
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(!validRange('age',16,120,'Edad'))return;
+    for(const [id,min,max,label] of [['hr',20,300,'Frecuencia cardíaca'],['rr',4,100,'Frecuencia respiratoria'],['temp',25,45,'Temperatura'],['sbp',30,300,'Presión sistólica'],['spo2',40,100,'Saturación de oxígeno']])if(!validRange(id,min,max,label))return;
+    if(selected('infection')===null){byId('infectionYes').focus();notify('Indica si existe sospecha o confirmación de infección.');return}
+    if(!val('mental')){byId('mental').focus();notify('Selecciona el estado mental actual.');return}
+    const data={code:val('patientCode').trim()||'No indicado',age:num('age'),infection:selected('infection'),source:val('source'),pregnancy:val('pregnancy'),hr:num('hr'),rr:num('rr'),temp:num('temp'),sbp:num('sbp'),dbp:val('dbp'),spo2:num('spo2'),mental:val('mental'),warnings:checkedWarnings(),notes:val('notes')};
+    const result=evaluate(data);const record={...data,result,time:timeNow(),createdAt:new Date().toISOString()};
+    records.unshift(record);latestReport={result,record};paintResult(result,record);renderHistory();updateDashboard();
+    if(result.color==='red')notify('Se activó una alerta demostrativa. Prioriza la valoración clínica.');else notify('Evaluación organizada. Revisa los hallazgos y sus limitaciones.');
   });
-  wireNav('navGuide', () => document.getElementById('guide-title').scrollIntoView({behavior:'smooth',block:'center'}));
+
+  function loadDemo(){
+    byId('patientCode').value='DEMO-001';byId('age').value='64';byId('infectionYes').checked=true;byId('source').value='Respiratorio';byId('pregnancy').value='no';byId('hr').value='132';byId('rr').value='28';byId('temp').value='39.2';byId('sbp').value='86';byId('dbp').value='54';byId('spo2').value='90';byId('mental').value='confused';document.querySelectorAll('input[name="warning"]').forEach(x=>x.checked=false);document.querySelector('input[name="warning"][value="decline"]').checked=true;byId('notes').value='Caso ficticio para demostrar el funcionamiento de la interfaz.';updateMetrics();notify('Caso ficticio cargado. Pulsa «Generar orientación» para ver el resultado.');
+  }
+  byId('loadDemo').addEventListener('click',loadDemo);byId('loadDemoTop').addEventListener('click',loadDemo);
+  function resetResult(){byId('resultDynamic').hidden=true;byId('emptyState').hidden=false;byId('resultDot').style.background='#a6b4bc';byId('resultTitle').textContent='Pendiente de evaluación';byId('resultSummary').textContent='Completa los datos principales para organizar los hallazgos registrados.';latestReport=null;updateMetrics()}
+  byId('resetBtn').addEventListener('click',()=>setTimeout(()=>{resetResult();notify('Formulario limpio. Puedes iniciar una nueva evaluación.')},0));
+  byId('printBtn').addEventListener('click',()=>{if(!latestReport){notify('Primero genera una evaluación.');return}document.body.classList.add('printing');window.print();setTimeout(()=>document.body.classList.remove('printing'),600)});
+  window.addEventListener('afterprint',()=>document.body.classList.remove('printing'));
+
+  function resultLabel(result){if(result.color==='red')return 'Alerta inmediata';if(result.color==='amber')return result.title==='Valoración prioritaria'?'Valoración prioritaria':'Vigilancia clínica';return 'Sin alerta detectada'}
+  function renderHistory(){
+    const tbody=byId('historyBody');tbody.replaceChildren();byId('historyCount').textContent=`${records.length} ${records.length===1?'registro':'registros'}`;byId('historyEmpty').style.display=records.length?'none':'block';
+    records.forEach((record,index)=>{const tr=document.createElement('tr');const values=[record.time,record.code,`${record.age} años`,resultLabel(record.result)];values.forEach((value,i)=>{const td=document.createElement('td');if(i===1){const b=document.createElement('strong');b.textContent=value;td.append(b)}else if(i===3){const pill=document.createElement('span');pill.className=`status-pill ${record.result.color}`;pill.textContent=value;td.append(pill)}else td.textContent=value;tr.append(td)});const actionTd=document.createElement('td');const action=document.createElement('button');action.type='button';action.className='table-action';action.textContent='Ver resultado';action.addEventListener('click',()=>{showView('evaluation');paintResult(record.result,record);notify(`Mostrando el resultado de ${record.code}.`)});actionTd.append(action);tr.append(actionTd);tbody.append(tr)});
+  }
+  function updateDashboard(){byId('statTotal').textContent=records.length;byId('statUrgent').textContent=records.filter(r=>r.result.color==='red').length;byId('statLast').textContent=records.length?records[0].time:'—'}
 })();
 </script>
 </body>
