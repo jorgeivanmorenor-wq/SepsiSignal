@@ -1,1726 +1,491 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Entre Estudiantes</title>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1827">
+<title>SepsiSignal — Reconocimiento temprano</title>
 <style>
-
-/* ================= GENERAL ================= */
-body{
-
-margin:0;
-
-font-family:Arial;
-
-background:
-linear-gradient(
-135deg,
-#000000,
-#050505,
-#0a0014,
-#000000
-);
-
-color:white;
-
-overflow-x:hidden;
-max-width:100vw;
-  
-}
-
-.bg{
-
-position:fixed;
-
-inset:0;
-
-z-index:-1;
-
-background:
-
-radial-gradient(
-circle at 20% 20%,
-rgba(183,255,0,.10),
-transparent 30%
-),
-
-radial-gradient(
-circle at 80% 30%,
-rgba(0,255,150,.08),
-transparent 30%
-),
-
-radial-gradient(
-circle at 50% 80%,
-rgba(183,255,0,.05),
-transparent 30%
-);
-
-}  
-/* ================= NAV ================= */
-  .logo-container{
-display:flex;
-align-items:center;
-}
-
-.logo-img{
-height:70px;
-object-fit:contain;
-
-filter:
-drop-shadow(0 0 10px rgba(183,255,0,.25));
-
-transition:.3s;
-}
-
-.logo-img:hover{
-transform:scale(1.05);
-}
-.nav{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-padding:15px 40px;
-width:100%;
-box-sizing:border-box;
-overflow:hidden;
-
-background:rgba(0,0,0,.25);
-
-backdrop-filter:blur(15px);
-
-border-bottom:
-1px solid rgba(255,255,255,.08);
-
-position:sticky;
-
-top:0;
-
-z-index:999;
-transition:transform .4s ease;
-}
-
-
-.menu span{
-
-margin:0 18px;
-
-cursor:pointer;
-
-transition:.4s;
-
-font-size:18px;
-font-weight:bold;
-
-padding:12px 22px;
-
-border-radius:40px;
-
-position:relative;
-
-color:white;
-
-}
-
-.menu span:hover{
-
-color:#000;
-
-background:#b7ff00;
-
-box-shadow:
-0 0 15px #b7ff00,
-0 0 35px rgba(183,255,0,.7),
-0 0 70px rgba(183,255,0,.4);
-
-transform:
-translateY(-3px)
-scale(1.05);
-
-}
-/* ================= SECCIONES ================= */
-.section{
-
-display:none;
-
-padding:40px;
-
-position:relative;
-
-z-index:2;
-
-background:transparent;
-width:100%;
-overflow:hidden;
-
-opacity:0;
-
-transform:
-translateY(30px)
-scale(.98);
-
-transition:
-opacity .5s ease,
-transform .5s ease;
-
-}
-
-.active{
-
-display:block;
-
-min-height:100vh;
-
-opacity:1;
-
-transform:
-translateY(0)
-scale(1);
-
-}
-/* ================= HERO ================= */
-.hero{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-padding:60px 30px;
-gap:30px;
-
-max-width:100%;
-
-overflow:hidden;
-box-sizing:border-box;
-
-}
-
-.hero-left{
-  display:flex;
-  flex-direction:column;
-  gap:25px;
-}
-
-.hero-text h1{
-
-font-size:95px;
-line-height:.95;
-
-font-weight:bold;
-
-letter-spacing:2px;
-
-margin:0;
-
-color:white;
-
-text-shadow:
-0 0 15px rgba(255,255,255,.15);
-
-}
-
-.hero-text span{
-
-color:#b7ff00;
-
-text-shadow:
-0 0 15px #b7ff00,
-0 0 30px #b7ff00,
-0 0 60px rgba(183,255,0,.7);
-
-}
-
-.hero-text p{
-  opacity:0.8;
-  font-size:18px;
-}
-
-.hero button{
-
-margin-top:35px;
-
-padding:20px 38px;
-
-border:none;
-
-border-radius:50px;
-
-background:#b7ff00;
-
-color:black;
-
-font-weight:bold;
-
-font-size:20px;
-
-cursor:pointer;
-
-transition:.4s;
-
-box-shadow:
-0 0 20px rgba(183,255,0,.5);
-
-}
-
-.hero button:hover{
-  transform:scale(1.05);
-}
-
-  /* ================= LOGO HERO ================= */
-
-.hero-logo{
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-}
-
-.main-logo{
-
-width:460px;
-max-width:100%;
-animation:floatLogo 5s ease-in-out infinite;
-
-filter:
-drop-shadow(0 0 25px rgba(183,255,0,.35))
-drop-shadow(0 0 80px rgba(183,255,0,.20));
-
-mix-blend-mode:screen;
-
-}
-
-@keyframes floatLogo{
-
-0%{
-transform:translateY(0px);
-}
-
-50%{
-transform:translateY(-12px);
-}
-
-100%{
-transform:translateY(0px);
-}
-
-}
-
-/* ================= GRID ================= */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  gap:25px;
-}
-
-/* ================= CARDS ================= */
-.card{
-
-background:
-rgba(255,255,255,.04);
-
-backdrop-filter:blur(18px);
-
-border:
-1px solid rgba(255,255,255,.08);
-
-border-radius:25px;
-
-overflow:hidden;
-
-transition:.35s;
-
-box-shadow:
-0 0 25px rgba(183,255,0,.05);
-
-}
-
-.card:hover{
-
-transform:
-perspective(1000px)
-rotateX(4deg)
-rotateY(-4deg)
-translateY(-12px)
-scale(1.03);
-
-box-shadow:
-0 0 40px rgba(183,255,0,.35);
-
-}
-
-.card:hover img{
-
-transform:scale(1.08);
-
-filter:
-brightness(1);
-
-}
-
-.card img{
-width:100%;
-height:220px;
-object-fit:cover;
-transition:.5s;
-filter:
-brightness(.78);
-
-}
-
-.card h3{
-  padding:10px;
-  color:#b7ff00;
-}
-
-audio{
-  width:100%;
-}
-
-/* ================= FORM ================= */
-input{
-  padding:12px;
-  margin:5px;
-  border-radius:20px;
-  border:none;
-  width:250px;
-}
-
-button{
-  padding:12px 18px;
-  border:none;
-  border-radius:20px;
-  background:#b7ff00;
-  cursor:pointer;
-}
-
-/* ================= NOSOTROS ================= */
-#nosotros p{
-  max-width:800px;
-  line-height:1.6;
-  opacity:0.9;
-}
-
-/* ================= MENSAJES ================= */
-
-.messages-box{
-
-display:flex;
-
-flex-direction:column;
-
-gap:20px;
-
-margin-top:30px;
-
-}
-
-.message-card{
-
-padding:25px;
-
-border-radius:25px;
-
-background:
-rgba(255,255,255,.05);
-
-backdrop-filter:blur(10px);
-
-border:
-1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 0 20px rgba(183,255,0,.08);
-
-animation:fadeMessage .5s ease;
-
-}
-
-.message-name{
-
-font-size:20px;
-
-font-weight:bold;
-
-color:#b7ff00;
-
-margin-bottom:12px;
-
-}
-
-.message-text{
-
-line-height:1.7;
-
-opacity:.9;
-
-font-size:17px;
-
-}
-
-@keyframes fadeMessage{
-
-from{
-opacity:0;
-transform:translateY(20px);
-}
-
-to{
-opacity:1;
-transform:translateY(0);
-}
-
-}
-/* ================= MODO CELULAR PRO ================= */
-@media (max-width:600px){
-
-  .nav{
-    padding:15px;
+  :root{
+    --ink:#142235;--muted:#637489;--paper:#f4f7fa;--white:#fff;--navy:#0b1827;--navy2:#10263a;
+    --teal:#40dbc2;--teal-dark:#008f84;--line:#e1e8ee;--soft:#edf7f6;--blue:#eaf3ff;
+    --red:#c63e4b;--red-bg:#fff0f0;--amber:#a65d04;--amber-bg:#fff5e4;--green:#14775d;--green-bg:#eaf8f1;
+    --radius:18px;--shadow:0 18px 50px rgba(21,44,66,.08)
   }
-
-  .menu span{
-    margin:0 8px;
-    font-size:14px;
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  a{color:inherit}
+  .app{min-height:100vh;display:grid;grid-template-columns:246px minmax(0,1fr)}
+  .sidebar{background:linear-gradient(180deg,var(--navy),#112a3b);color:#e9f0f6;padding:25px 17px;display:flex;flex-direction:column;gap:28px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:11px;padding:2px 7px}
+  .brand-mark{width:39px;height:39px;border-radius:13px;background:var(--teal);display:grid;place-items:center;color:#09212a;box-shadow:0 0 0 6px rgba(64,219,194,.1)}
+  .brand-mark svg{width:23px;height:23px}
+  .brand-name{font-size:17px;font-weight:800;letter-spacing:-.5px}.brand-sub{display:block;font-size:10px;color:#9cb3c2;letter-spacing:1.8px;text-transform:uppercase;font-weight:700;margin-top:1px}
+  .nav-label{font-size:10px;color:#8097a7;text-transform:uppercase;letter-spacing:1.7px;font-weight:800;padding:0 12px;margin-bottom:8px}
+  .nav-item{display:flex;align-items:center;gap:11px;color:#bfd0da;padding:11px 12px;border-radius:11px;font-size:13px;margin:3px 0;cursor:pointer;outline-offset:2px}.nav-item:focus-visible{outline:2px solid var(--teal)}
+  .nav-item svg{width:17px;height:17px;opacity:.82}.nav-item.active{background:rgba(64,219,194,.13);color:#66ead5;box-shadow:inset 3px 0 0 var(--teal)}
+  .side-note{margin-top:auto;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);padding:15px;border-radius:14px;color:#b3c6d2;font-size:11px}
+  .side-note strong{display:block;color:#fff;font-size:12px;margin:0 0 5px}.side-note .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffce73;margin-right:6px}
+  .side-footer{font-size:10px;color:#8197a6;padding:0 10px}
+  main{min-width:0;padding:27px clamp(18px,3vw,42px) 50px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:25px}
+  .crumb{font-size:12px;color:var(--muted)}.crumb b{color:var(--ink);font-weight:700}
+  .top-actions{display:flex;align-items:center;gap:10px}
+  .demo-tag{display:flex;align-items:center;gap:7px;border:1px solid #dce5eb;background:#fff;padding:8px 12px;border-radius:999px;font-size:11px;color:#637489;font-weight:700}
+  .demo-tag span{width:7px;height:7px;border-radius:50%;background:#e3a340}
+  .avatar{width:34px;height:34px;border-radius:11px;background:#dff7f3;color:#07796f;font-size:12px;font-weight:800;display:grid;place-items:center}
+  .hero{position:relative;overflow:hidden;background:linear-gradient(116deg,#0b1a2a 3%,#13364a 70%,#125e60);border-radius:23px;color:white;padding:29px 31px;margin-bottom:23px;box-shadow:0 16px 36px rgba(9,31,50,.15)}
+  .hero:after{content:"";position:absolute;right:-62px;top:-156px;width:360px;height:360px;border-radius:50%;border:1px solid rgba(70,230,202,.18);box-shadow:0 0 0 28px rgba(70,230,202,.035),0 0 0 60px rgba(70,230,202,.025)}
+  .hero:before{content:"";position:absolute;right:112px;bottom:-220px;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle,rgba(64,219,194,.19),transparent 67%)}
+  .hero-inner{position:relative;z-index:1;max-width:760px}
+  .eyebrow{display:flex;align-items:center;gap:8px;color:#7eead8;text-transform:uppercase;letter-spacing:1.7px;font-size:10px;font-weight:800;margin-bottom:12px}
+  .eyebrow i{width:22px;height:1px;background:currentColor}
+  h1{font-size:clamp(25px,3.2vw,37px);line-height:1.1;letter-spacing:-1.2px;margin:0 0 12px;font-weight:800}
+  .hero p{max-width:690px;margin:0;color:#c4d7e1;font-size:13px;line-height:1.7}
+  .hero-bottom{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:21px}
+  .hero-pill{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.1);border-radius:999px;font-size:10px;color:#d7e7ee}
+  .hero-pill svg{width:14px;height:14px;color:var(--teal)}
+  .alert-strip{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;background:#fff9ec;border:1px solid #f5dfb6;border-radius:13px;margin-bottom:24px;color:#725020;font-size:11px}
+  .alert-strip svg{flex:0 0 18px;width:18px;height:18px;margin-top:1px}.alert-strip strong{color:#4c3211}
+  .layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(285px,.8fr);gap:22px;align-items:start}
+  .panel{background:#fff;border:1px solid #e7edf1;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;min-width:0}
+  .panel-head{padding:20px 22px 16px;border-bottom:1px solid #edf1f4;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .panel-head h2{font-size:16px;line-height:1.25;letter-spacing:-.3px;margin:0 0 5px}.panel-head p{margin:0;color:var(--muted);font-size:11px}
+  .step-badge{font-size:10px;font-weight:800;color:#087e73;background:#e2f8f4;border-radius:7px;padding:6px 9px;white-space:nowrap}
+  .form-body{padding:20px 22px 23px}
+  .section-title{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:12px;font-weight:800;color:#2d4257}
+  .section-number{width:25px;height:25px;border-radius:8px;background:#e5f8f5;color:#0a897d;display:grid;place-items:center;font-size:11px;font-weight:900}
+  .section-sub{color:#7b8da0;font-size:10px;font-weight:600;margin-left:auto}
+  .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 13px;margin-bottom:24px}
+  .field{min-width:0}.field.full{grid-column:1/-1}
+  label,.label{display:block;color:#35485b;font-size:11px;font-weight:750;margin-bottom:7px}
+  .optional{color:#91a0af;font-size:10px;font-weight:500;margin-left:4px}
+  input[type=text],input[type=number],select,textarea{width:100%;border:1px solid #dce5eb;background:#fbfcfd;border-radius:10px;padding:10px 11px;color:#1d3042;font-size:12px;outline:none;transition:border .15s,box-shadow .15s}
+  input:focus,select:focus,textarea:focus{border-color:#3dbfac;box-shadow:0 0 0 3px rgba(61,191,172,.13)}
+  input::placeholder{color:#a5b1bd}
+  .input-wrap{position:relative}.unit{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#95a3b1;font-size:10px;pointer-events:none}.input-wrap input{padding-right:43px}
+  .radio-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .radio-card{position:relative}.radio-card input{position:absolute;opacity:0;width:1px;height:1px}
+  .radio-card label{display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;min-height:42px;padding:8px;border:1px solid #dce5eb;background:#fbfcfd;border-radius:10px;color:#576b7e;cursor:pointer;margin:0;font-size:11px;font-weight:700}
+  .radio-card input:checked+label{border-color:#36b9a7;background:#eaf9f6;color:#06776b;box-shadow:inset 0 0 0 1px #36b9a7}
+  .radio-card label:before{content:"";width:8px;height:8px;border-radius:50%;border:1.5px solid #a2b2bf;flex:0 0 auto}.radio-card input:checked+label:before{border:3px solid #09988a;background:white}
+  .checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .check{display:flex;align-items:flex-start;gap:9px;padding:10px 11px;background:#fbfcfd;border:1px solid #e3eaf0;border-radius:10px;min-height:58px;cursor:pointer}
+  .check input{accent-color:#149e90;margin:2px 0 0;flex:0 0 auto;width:14px;height:14px}
+  .check span{font-size:11px;font-weight:650;color:#41566a;line-height:1.4}.check small{display:block;color:#8796a5;font-size:9px;font-weight:500;margin-top:3px}
+  .divider{height:1px;background:#edf1f4;margin:21px 0}
+  .actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:10px;padding:11px 15px;border:1px solid transparent;font-size:11px;font-weight:800;transition:transform .15s,background .15s;white-space:nowrap}
+  .btn:hover{transform:translateY(-1px)}.btn svg{width:15px;height:15px}
+  .btn-primary{background:#0c857b;color:white;box-shadow:0 5px 14px rgba(12,133,123,.2)}.btn-primary:hover{background:#086e66}
+  .btn-secondary{background:#fff;border-color:#dbe5eb;color:#4d6274}.btn-light{background:#e8f9f5;color:#087e73}
+  .microcopy{font-size:9px;line-height:1.6;color:#8b99a6;margin:12px 0 0}
+  .results-sticky{position:sticky;top:20px;display:flex;flex-direction:column;gap:16px}
+  .result-card{background:#fff;border:1px solid #e5edf1;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .result-top{padding:20px 20px 18px;background:linear-gradient(120deg,#f8fbfd,#f1f8f7);border-bottom:1px solid #e5eeef}
+  .result-label{display:flex;align-items:center;gap:7px;color:#788b9b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.25px}
+  .result-dot{width:8px;height:8px;border-radius:50%;background:#aab7c2}
+  .result-title{font-size:22px;font-weight:850;letter-spacing:-.7px;margin:13px 0 7px;line-height:1.1;color:#23384b}
+  .result-desc{font-size:11px;color:#64798a;line-height:1.65;margin:0}
+  .result-content{padding:18px 20px 20px}
+  .result-empty{display:grid;place-items:center;text-align:center;min-height:155px;color:#8b9baa}
+  .result-empty .radar{width:60px;height:60px;border:1px solid #c9e8e3;border-radius:50%;display:grid;place-items:center;margin-bottom:12px;background:radial-gradient(circle,#e5faf6 0,#f8fcfc 70%);position:relative}
+  .result-empty .radar:before,.result-empty .radar:after{content:"";position:absolute;border:1px solid #d8efec;border-radius:50%;width:42px;height:42px}.result-empty .radar:after{width:25px;height:25px;background:#d9f6f0}
+  .radar svg{width:21px;height:21px;position:relative;z-index:1;color:#0a9285}
+  .result-empty strong{color:#536b7b;font-size:12px;display:block;margin-bottom:5px}.result-empty p{font-size:10px;margin:0;max-width:210px;line-height:1.6}
+  .result-status{padding:13px;border-radius:11px;margin-bottom:16px}.result-status h3{font-size:12px;margin:0 0 5px}.result-status p{font-size:10px;margin:0;line-height:1.6}
+  .result-status.red{background:var(--red-bg);color:#8d2430;border:1px solid #f7cfd2}.result-status.amber{background:var(--amber-bg);color:#81500e;border:1px solid #f6dfb2}.result-status.green{background:var(--green-bg);color:#166348;border:1px solid #caedda}.result-status.neutral{background:#f0f5f8;color:#50697b;border:1px solid #dce7ed}
+  .reason-heading{font-size:10px;font-weight:850;color:#4b6071;text-transform:uppercase;letter-spacing:1px;margin:16px 0 9px}
+  .reason-list{display:flex;flex-direction:column;gap:8px}.reason{display:flex;gap:8px;align-items:flex-start;font-size:10px;color:#52697b;line-height:1.45}.reason-mark{width:17px;height:17px;border-radius:6px;display:grid;place-items:center;background:#edf3f6;color:#5c7284;font-size:10px;flex:0 0 auto;font-weight:900}.reason-mark.red{background:#ffe0e2;color:#ba3442}.reason-mark.amber{background:#ffedc9;color:#9a5b00}.reason-mark.green{background:#d5f2e4;color:#167456}
+  .result-action{display:none;width:100%;margin-top:17px}
+  .result-card.has-result .result-empty{display:none}.result-card.has-result .result-action{display:flex}
+  .mini-panel{padding:17px 18px;border-radius:15px;border:1px solid #e3ebef;background:#fff}
+  .mini-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mini-header h3{font-size:12px;margin:0}.mini-header span{font-size:9px;color:#7b8e9f}
+  .metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .metric{border:1px solid #e8eef1;background:#fbfcfd;padding:10px;border-radius:10px}.metric-top{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#8797a5;font-size:9px}.metric-top svg{width:14px;height:14px;color:#7190a1}.metric-value{font-size:19px;letter-spacing:-.5px;font-weight:850;margin:6px 0 2px;color:#20384b}.metric-sub{font-size:9px;color:#8897a4}
+  .guide{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #edf1f4}.guide:last-child{border-bottom:0;padding-bottom:0}.guide-icon{width:28px;height:28px;flex:0 0 auto;display:grid;place-items:center;border-radius:9px;background:#eaf8f6;color:#08887b}.guide-icon svg{width:15px;height:15px}.guide strong{display:block;font-size:10px;margin:1px 0 3px;color:#384e60}.guide p{font-size:9px;color:#7b8e9c;line-height:1.5;margin:0}
+  .footer{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:21px 3px 0;color:#80909d;font-size:9px;line-height:1.6}.footer strong{color:#53697a}.footer a{color:#268f85;text-decoration:none}.footer a:hover{text-decoration:underline}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,25px);opacity:0;pointer-events:none;background:#12293a;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 12px 30px #08182633;font-size:12px;z-index:10;transition:all .2s;max-width:calc(100vw - 30px)}.toast.show{opacity:1;transform:translate(-50%,0)}
+  .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media(max-width:1080px){.app{grid-template-columns:205px minmax(0,1fr)}.sidebar{padding-inline:12px}.layout{grid-template-columns:minmax(0,1fr)}.results-sticky{position:static;display:grid;grid-template-columns:1fr 1fr;align-items:start}.result-card{grid-row:span 2}.mini-panel{min-width:0}}
+  @media(max-width:720px){.app{display:block}.sidebar{position:relative;height:auto;padding:13px 16px;flex-direction:row;align-items:center;justify-content:space-between;gap:12px}.brand{padding:0}.brand-mark{width:34px;height:34px}.nav-label,.nav,.side-note,.side-footer{display:none}.topbar{margin-bottom:17px}.top-actions .demo-tag{display:none}main{padding:18px 14px 30px}.hero{padding:23px 20px;border-radius:18px}.hero:after{right:-220px}.layout{gap:15px}.panel-head{padding:18px}.form-body{padding:18px}.results-sticky{display:flex}.fields{gap:12px}.checks{grid-template-columns:1fr}.footer{display:block}.footer div+div{margin-top:8px}}
+  @media(max-width:420px){.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.radio-row{grid-template-columns:1fr}.radio-card label{justify-content:flex-start;padding-left:14px}.hero-bottom{gap:6px}.hero-pill{font-size:9px}.actions .btn{flex:1}.panel-head{gap:7px}.step-badge{font-size:9px}.result-title{font-size:20px}}
+  @media print{
+    body{background:#fff}.sidebar,.topbar,.hero,.alert-strip,.panel:not(.result-card),.mini-panel,.footer,.result-action,.toast{display:none!important}.app{display:block}main{padding:0}.layout{display:block}.results-sticky{display:block}.result-card{box-shadow:none;border:0}.result-top{padding:0 0 15px}.result-content{padding:16px 0}.result-card .result-empty{display:none}.result-card:not(.has-result) .result-empty{display:grid}.result-card.has-result .result-action{display:none!important}a{color:#000;text-decoration:none}
   }
-
-  .section{
-    padding:20px;
-  }
-
-  .hero{
-    flex-direction:column;
-    text-align:center;
-    padding:20px;
-  }
-
-  .hero-text h1{
-    font-size:38px;
-  }
-
-  .hero-text p{
-    font-size:16px;
-  }
-
-  .uni-img{
-    width:90%;
-  }
-
-  .circle{
-    width:150px;
-    height:150px;
-    margin-top:20px;
-  }
-
-  .grid{
-    grid-template-columns:1fr;
-  }
-
-  input{
-    width:100%;
-  }
-
-  button{
-    width:100%;
-  }
-
-}
-  /* ================= PARTICULAS ================= */
-
-.particle{
-
-position:fixed;
-
-width:4px;
-height:4px;
-
-border-radius:50%;
-
-background:#b7ff00;
-
-opacity:.7;
-
-pointer-events:none;
-
-z-index:1;
-
-box-shadow:
-0 0 10px #b7ff00,
-0 0 20px rgba(183,255,0,.7);
-
-animation:float 10s linear infinite;
-
-}
-
-@keyframes float{
-
-from{
-transform:translateY(100vh);
-}
-
-to{
-transform:translateY(-100px);
-}
-
-}
-  /* ================= COMMUNITY PREMIUM ================= */
-
-.community-form{
-
-display:flex;
-
-align-items:center;
-
-gap:15px;
-
-width:100%;
-
-max-width:100%;
-
-box-sizing:border-box;
-
-overflow:hidden;
-
-margin-top:40px;
-
-padding:18px;
-
-border-radius:35px;
-
-background:
-rgba(255,255,255,.05);
-
-backdrop-filter:blur(18px);
-
-border:
-1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 0 35px rgba(183,255,0,.08);
-
-}
-
-/* ================= INPUT ================= */
-
-.community-form input{
-
-flex:1;
-
-min-width:0;
-
-width:100%;
-
-padding:18px;
-
-border:none;
-
-border-radius:60px;
-
-background:
-rgba(255,255,255,.08);
-
-color:white;
-
-font-size:18px;
-
-outline:none;
-
-box-sizing:border-box;
-
-border:
-1px solid rgba(255,255,255,.08);
-
-transition:.3s;
-
-}
-
-/* ================= TEXTAREA ================= */
-
-.community-form textarea{
-
-flex:2;
-
-min-width:0;
-
-width:100%;
-
-height:70px;
-
-padding:18px;
-
-border:none;
-
-border-radius:30px;
-
-background:
-rgba(255,255,255,.08);
-
-color:white;
-
-font-size:17px;
-
-outline:none;
-
-resize:none;
-
-box-sizing:border-box;
-
-border:
-1px solid rgba(255,255,255,.08);
-
-transition:.3s;
-
-}
-/* ================= FOCUS ================= */
-
-.community-form input:focus,
-.community-form textarea:focus{
-
-box-shadow:
-0 0 20px rgba(183,255,0,.25);
-
-}
-
-/* ================= BUTTON ================= */
-
-.community-form button{
-
-padding:18px 28px;
-border:none;
-
-border-radius:60px;
-
-background:#b7ff00;
-
-color:black;
-
-font-size:18px;
-font-weight:bold;
-
-cursor:pointer;
-
-transition:.35s;
-
-box-shadow:
-0 0 20px rgba(183,255,0,.35);
-
-}
-
-/* ================= HOVER ================= */
-
-.community-form button:hover{
-
-transform:
-translateY(-4px)
-scale(1.05);
-
-box-shadow:
-0 0 30px rgba(183,255,0,.55);
-
-}
-
-/* ================= PLACEHOLDER ================= */
-
-.community-form input::placeholder,
-.community-form textarea::placeholder{
-
-color:
-rgba(255,255,255,.5);
-
-}
-  /* ================= GRID FUTURISTA ================= */
-
-.grid-bg{
-
-position:fixed;
-
-inset:0;
-
-z-index:-2;
-
-background-image:
-
-linear-gradient(
-rgba(183,255,0,.05) 1px,
-transparent 1px
-),
-
-linear-gradient(
-90deg,
-rgba(183,255,0,.05) 1px,
-transparent 1px
-);
-
-background-size:40px 40px;
-
-mask-image:
-radial-gradient(
-circle at center,
-black 30%,
-transparent 100%
-);
-
-pointer-events:none;
-
-}
-/* ================= CONSTELLATION ================= */
-
-#constellation{
-
-position:fixed;
-
-top:0;
-left:0;
-
-width:100%;
-height:100%;
-
-z-index:0;
-
-pointer-events:none;
-
-}
-  /* =======================================================
-MOBILE PRO MAX
-======================================================= */
-
-@media(max-width:768px){
-
-/* ================= BODY ================= */
-
-body{
-
-overflow-x:hidden;
-
-}
-
-/* ================= NAV ================= */
-
-.nav{
-
-flex-direction:column;
-
-padding:15px;
-
-gap:15px;
-
-}
-
-.logo-container{
-
-justify-content:center;
-
-width:100%;
-
-}
-
-.logo-img{
-
-height:55px;
-
-}
-
-/* ================= MENU ================= */
-
-.menu{
-
-display:flex;
-
-flex-wrap:wrap;
-
-justify-content:center;
-
-gap:10px;
-
-width:100%;
-
-}
-.menu{
-
-display:flex;
-
-flex-wrap:wrap;
-
-justify-content:center;
-
-max-width:100%;
-
-}
-
-.menu span{
-
-font-size:15px;
-
-padding:10px 14px;
-
-margin:0;
-
-}
-
-/* ================= HERO ================= */
-
-.hero{
-
-flex-direction:column;
-
-justify-content:center;
-
-align-items:center;
-
-text-align:center;
-
-padding:25px 20px;
-
-gap:30px;
-
-}
-
-/* ================= TITULO ================= */
-
-.hero-text h1{
-
-font-size:52px;
-
-line-height:1;
-
-}
-
-/* ================= TEXTO ================= */
-
-.hero-text p{
-
-font-size:16px;
-
-line-height:1.6;
-
-}
-
-/* ================= BOTON ================= */
-
-.hero button{
-
-width:100%;
-
-padding:16px;
-
-font-size:17px;
-
-}
-
-/* ================= LOGO ================= */
-
-.main-logo{
-
-width:280px;
-
-max-width:90%;
-
-}
-
-/* ================= SECCIONES ================= */
-
-.section{
-
-padding:25px 18px;
-
-}
-
-/* ================= GRID ================= */
-
-.grid{
-
-grid-template-columns:1fr;
-
-gap:20px;
-
-}
-
-/* ================= CARDS ================= */
-
-.card{
-
-border-radius:20px;
-
-}
-
-.card img{
-
-height:220px;
-
-}
-
-.card h3{
-
-font-size:22px;
-
-padding:15px;
-
-}
-  /* ================= DESCRIPCION PODCAST ================= */
-
-.pod-desc{
-
-padding:0 15px 15px;
-
-opacity:.75;
-
-line-height:1.5;
-
-font-size:15px;
-
-}
-
-/* ================= AUDIO ================= */
-
-audio{
-
-width:100%;
-
-height:45px;
-
-margin-bottom:15px;
-
-}
-
-/* ================= INPUTS ================= */
-
-input{
-
-width:100%;
-
-margin:8px 0;
-
-padding:16px;
-
-font-size:16px;
-
-}
-
-/* ================= BUTTONS ================= */
-
-button{
-
-width:100%;
-
-padding:16px;
-
-font-size:17px;
-
-}
-
-/* ================= COMUNIDAD ================= */
-
-.community-form{
-
-flex-direction:column;
-
-padding:18px;
-
-gap:15px;
-
-}
-
-/* ================= INPUT COMUNIDAD ================= */
-
-.community-form input{
-
-width:100%;
-
-padding:16px;
-
-font-size:16px;
-
-}
-
-/* ================= TEXTAREA ================= */
-
-.community-form textarea{
-
-width:100%;
-
-height:120px;
-
-padding:16px;
-
-font-size:16px;
-
-}
-
-/* ================= BOTON COMUNIDAD ================= */
-
-.community-form button{
-
-width:100%;
-
-padding:16px;
-
-font-size:17px;
-
-}
-
-/* ================= MENSAJES ================= */
-
-.message-card{
-
-padding:18px;
-
-border-radius:20px;
-
-}
-
-.message-name{
-
-font-size:18px;
-
-}
-
-.message-text{
-
-font-size:15px;
-
-line-height:1.6;
-
-}
-
-/* ================= NOSOTROS ================= */
-
-#nosotros p{
-
-font-size:16px;
-
-line-height:1.8;
-
-}
-
-/* ================= TITULOS ================= */
-
-h2{
-
-font-size:32px;
-
-text-align:center;
-
-margin-bottom:20px;
-
-}
-
-}
-  /* ================= FEATURED PODCAST ================= */
-
-.featured-card{
-
-display:flex;
-
-align-items:center;
-
-gap:30px;
-max-width:100%;
-box-sizing:border-box;
-
-margin-bottom:40px;
-
-padding:25px;
-
-border-radius:35px;
-
-background:
-rgba(255,255,255,.05);
-
-backdrop-filter:blur(20px);
-
-border:
-1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 0 40px rgba(183,255,0,.08);
-
-overflow:hidden;
-  flex-wrap:wrap;
-
-}
-
-.featured-card img{
-
-width:320px;
-
-height:320px;
-
-object-fit:cover;
-
-border-radius:25px;
-
-filter:
-brightness(.85);
-
-}
-
-.featured-info{
-
-flex:1;
-
-}
-
-.featured-info h2{
-
-font-size:48px;
-
-margin-bottom:15px;
-
-color:#b7ff00;
-
-}
-
-.featured-info p{
-
-font-size:18px;
-
-line-height:1.7;
-
-opacity:.85;
-
-margin-bottom:25px;
-
-}
-
-.featured-label{
-
-font-size:15px;
-
-letter-spacing:3px;
-
-margin-bottom:15px;
-
-color:#b7ff00;
-
-opacity:.7;
-
-}
 </style>
 </head>
-
 <body>
-<div class="bg"></div>
-<canvas id="constellation"></canvas>
-<div class="grid-bg"></div>
-<div class="particle" style="left:10%;animation-duration:9s;"></div>
-<div class="particle" style="left:20%;animation-duration:7s;"></div>
-<div class="particle" style="left:35%;animation-duration:11s;"></div>
-<div class="particle" style="left:50%;animation-duration:6s;"></div>
-<div class="particle" style="left:65%;animation-duration:10s;"></div>
-<div class="particle" style="left:80%;animation-duration:8s;"></div>
-<!-- NAV -->
-<div class="nav">
-<div class="logo-container">
-  <img src="logo.png" class="logo-img">
-</div>  <div class="menu">
-    <span onclick="show('inicio')">Inicio</span>
-    <span onclick="show('episodios')">Episodios</span>
-    <span onclick="show('subir')">Subir</span>
-    <span onclick="show('nosotros')">Nosotros</span>
-    <span onclick="show('comunidad')">Comunidad</span>
-  <span onclick="show('feedback')">
-Feedback
-</span>
-  </div>
-</div>
+<div class="app">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".35"/></svg></div>
+      <div><div class="brand-name">SepsiSignal</div><span class="brand-sub">Early recognition</span></div>
+    </div>
+    <div class="nav">
+      <div class="nav-label">Espacio clínico</div>
+      <div class="nav-item active" id="navEval" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 4h18v16H3z" stroke="currentColor" stroke-width="1.3" opacity=".45"/></svg>Evaluación temprana</div>
+      <div class="nav-item" id="navReport" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Registro de evaluación</div>
+      <div class="nav-item" id="navGuide" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.5"/><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Guía de actuación</div>
+    </div>
+    <div class="side-note"><strong><span class="dot"></span>Prototipo académico</strong>Esta herramienta es demostrativa. No está validada para decisiones clínicas ni sustituye el juicio profesional o los protocolos institucionales.</div>
+    <div class="side-footer">VERSIÓN 0.1 · OCTUBRE 2026</div>
+  </aside>
 
-<!-- ================= INICIO ================= -->
-<div id="inicio" class="section active">
+  <main>
+    <div class="topbar">
+      <div class="crumb">Espacio clínico <span aria-hidden="true">/</span> <b>Evaluación temprana</b></div>
+      <div class="top-actions"><div class="demo-tag"><span></span> Modo demostración · sin almacenamiento</div><div class="avatar" aria-label="Prototipo">SS</div></div>
+    </div>
 
-  <div class="hero">
-
-    <div class="hero-left">
-
-      <div class="hero-text">
-
-        <h1>
-          ENTRE <span>ESTUDIANTES</span>
-        </h1>
-
-        <p>
-          Tu voz. Tu historia. Tu podcast.
-        </p>
-
-        <button onclick="show('episodios')">
-          Escuchar ahora
-        </button>
-
+    <section class="hero" aria-labelledby="main-title">
+      <div class="hero-inner">
+        <div class="eyebrow"><i></i> Early sepsis recognition</div>
+        <h1 id="main-title">Cada signo cuenta.<br>Reconoce el deterioro a tiempo.</h1>
+        <p>Organiza los hallazgos clínicos de un adulto con posible infección, identifica señales de alarma y genera una orientación inicial para apoyar la valoración del equipo de salud.</p>
+        <div class="hero-bottom">
+          <div class="hero-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Signos vitales</div>
+          <div class="hero-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.6"/></svg>Señales de alarma</div>
+          <div class="hero-pill"><svg viewBox="0 0 24 24" fill="none"><path d="M4 18V6m0 12h16M7 15l4-5 3 2 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Orientación inicial</div>
+        </div>
       </div>
+    </section>
 
+    <div class="alert-strip" role="note">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 22 20H2L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <div><strong>Antes de empezar:</strong> si el paciente presenta confusión nueva, dificultad respiratoria intensa, coloración azulada o moteada, desmayo o presión arterial muy baja, solicita atención de emergencia de inmediato. No retrases la atención para completar este formulario.</div>
     </div>
 
-    <!-- LOGO -->
-    <div class="hero-logo">
+    <div class="layout">
+      <section class="panel" aria-labelledby="form-title">
+        <div class="panel-head">
+          <div><h2 id="form-title">Evaluación del paciente</h2><p>Introduce la información disponible. Los campos marcados son necesarios.</p></div>
+          <span class="step-badge">EVALUACIÓN 01</span>
+        </div>
+        <form id="triageForm" class="form-body" novalidate>
+          <div class="section-title"><span class="section-number">01</span> Contexto clínico <span class="section-sub">Datos básicos</span></div>
+          <div class="fields">
+            <div class="field"><label for="patientCode">Código o iniciales <span class="optional">opcional</span></label><input id="patientCode" name="patientCode" type="text" placeholder="Ej. PAC-024" maxlength="32" autocomplete="off"></div>
+            <div class="field"><label for="age">Edad <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="age" name="age" type="number" min="16" max="120" step="1" placeholder="Ej. 58" required><span class="unit">años</span></div></div>
+            <div class="field full"><label>¿Existe sospecha o confirmación de infección? <span style="color:#c63e4b">*</span></label>
+              <div class="radio-row">
+                <div class="radio-card"><input id="infectionYes" type="radio" name="infection" value="yes" required><label for="infectionYes">Sí</label></div>
+                <div class="radio-card"><input id="infectionNo" type="radio" name="infection" value="no"><label for="infectionNo">No</label></div>
+                <div class="radio-card"><input id="infectionUnknown" type="radio" name="infection" value="unknown"><label for="infectionUnknown">No se sabe</label></div>
+              </div>
+            </div>
+            <div class="field"><label for="source">Foco sospechado <span class="optional">opcional</span></label><select id="source" name="source"><option value="No definido">No definido</option><option>Respiratorio</option><option>Urinario</option><option>Abdominal / digestivo</option><option>Piel y tejidos blandos</option><option>Dispositivo / catéter</option><option>Otro</option></select></div>
+            <div class="field"><label for="pregnancy">Embarazo o posparto reciente</label><select id="pregnancy" name="pregnancy"><option value="no">No / no aplica</option><option value="yes">Sí</option><option value="unknown">Desconocido</option></select></div>
+          </div>
 
-      <img
-      src="./logo.png"
-      class="main-logo">
+          <div class="section-title"><span class="section-number">02</span> Signos vitales <span class="section-sub">Valores actuales</span></div>
+          <div class="fields">
+            <div class="field"><label for="hr">Frecuencia cardíaca <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="hr" name="hr" type="number" min="20" max="300" step="1" placeholder="Ej. 112" required><span class="unit">lpm</span></div></div>
+            <div class="field"><label for="rr">Frecuencia respiratoria <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="rr" name="rr" type="number" min="4" max="100" step="1" placeholder="Ej. 26" required><span class="unit">rpm</span></div></div>
+            <div class="field"><label for="temp">Temperatura <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="temp" name="temp" type="number" min="25" max="45" step="0.1" placeholder="Ej. 38.7" required><span class="unit">°C</span></div></div>
+            <div class="field"><label for="sbp">Presión sistólica <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="sbp" name="sbp" type="number" min="30" max="300" step="1" placeholder="Ej. 88" required><span class="unit">mmHg</span></div></div>
+            <div class="field"><label for="dbp">Presión diastólica <span class="optional">opcional</span></label><div class="input-wrap"><input id="dbp" name="dbp" type="number" min="10" max="200" step="1" placeholder="Ej. 55"><span class="unit">mmHg</span></div></div>
+            <div class="field"><label for="spo2">Saturación de oxígeno <span style="color:#c63e4b">*</span></label><div class="input-wrap"><input id="spo2" name="spo2" type="number" min="40" max="100" step="1" placeholder="Ej. 91" required><span class="unit">%</span></div></div>
+            <div class="field full"><label for="mental">Estado mental actual <span style="color:#c63e4b">*</span></label><select id="mental" name="mental" required><option value="">Selecciona una opción</option><option value="normal">Alerta y orientado, como de costumbre</option><option value="confused">Confusión nueva o alteración de conciencia</option><option value="unknown">No evaluado / desconocido</option></select></div>
+          </div>
 
+          <div class="section-title"><span class="section-number">03</span> Síntomas y signos de alarma <span class="section-sub">Marca los presentes</span></div>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="warning" value="cyanosis"><span>Coloración azulada, piel moteada o aspecto ceniciento<small>Hallazgo visual de alarma</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="rash"><span>Manchas rojas o moradas que no palidecen al presionar<small>Erupción no blanqueable</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="urine"><span>Orina mucho menos de lo habitual<small>Posible deterioro de perfusión o función renal</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="oxygen"><span>Necesidad nueva o creciente de oxígeno<small>Comparado con su situación habitual</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="decline"><span>Deterioro rápido o empeoramiento reciente<small>Según el paciente, familia o equipo</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="pain"><span>Dolor o malestar extremo, escalofríos intensos<small>Manifestaciones sistémicas relevantes</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="immuno"><span>Inmunosupresión o defensas disminuidas<small>Enfermedad o medicamentos</small></span></label>
+            <label class="check"><input type="checkbox" name="warning" value="procedure"><span>Cirugía, procedimiento o dispositivo reciente<small>Especialmente en las últimas semanas</small></span></label>
+          </div>
+          <div class="field full" style="margin-top:16px"><label for="notes">Observaciones clínicas <span class="optional">opcional · no incluir datos identificables</span></label><textarea id="notes" rows="3" maxlength="500" placeholder="Ej. síntomas desde hace 12 horas, cambios respecto al estado basal…" style="resize:vertical"></textarea></div>
+          <div class="divider"></div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Analizar señales de alarma</button>
+            <button class="btn btn-secondary" type="button" id="demoBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Cargar caso demo</button>
+            <button class="btn btn-secondary" type="reset" id="resetBtn">Limpiar</button>
+          </div>
+          <p class="microcopy">Este prototipo usa reglas de demostración, no una escala clínica validada. No calcula NEWS2 ni qSOFA. Las mediciones deben verificarse y los hallazgos interpretarse con la historia clínica, la exploración y el juicio del profesional.</p>
+        </form>
+      </section>
+
+      <aside class="results-sticky" aria-label="Resultado y guía">
+        <section class="result-card" id="resultCard" aria-labelledby="result-title" aria-live="polite">
+          <div class="result-top">
+            <div class="result-label"><span class="result-dot" id="resultDot"></span> Resultado de orientación</div>
+            <div class="result-title" id="result-title">Esperando evaluación</div>
+            <p class="result-desc" id="resultSummary">Completa los datos básicos y selecciona «Analizar señales de alarma» para generar una orientación inicial.</p>
+          </div>
+          <div class="result-content">
+            <div class="result-empty" id="emptyState"><div class="radar"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h4l2-7 4 12 2-5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><strong>Tu evaluación aparecerá aquí</strong><p>El resultado explicará qué datos generan la alerta y cuál sería el siguiente paso orientativo.</p></div>
+            <div id="resultDynamic" hidden>
+              <div id="statusBox" class="result-status neutral"><h3 id="statusHeading"></h3><p id="statusText"></p></div>
+              <div id="reportDetails" class="reason" style="font-size:10px;margin-bottom:12px;line-height:1.7"></div>
+              <div class="reason-heading">Hallazgos que influyen</div>
+              <div class="reason-list" id="reasonList"></div>
+              <div class="reason-heading">Siguiente paso sugerido</div>
+              <div id="nextStep" class="reason" style="font-size:11px"></div>
+              <button class="btn btn-secondary result-action" id="printBtn" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Imprimir / guardar informe PDF</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="mini-panel" aria-labelledby="snapshot-title">
+          <div class="mini-header"><h3 id="snapshot-title">Resumen de mediciones</h3><span>Valores ingresados</span></div>
+          <div class="metric-grid">
+            <div class="metric"><div class="metric-top">Frecuencia cardíaca <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-7 4 14 2-7h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div><div class="metric-value" id="mHr">—</div><div class="metric-sub">latidos/min</div></div>
+            <div class="metric"><div class="metric-top">Respiración <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v7m0 0c-2-4-5-4-7 1-2 5 1 8 7 7m0-8c2-4 5-4 7 1 2 5-1 8-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="metric-value" id="mRr">—</div><div class="metric-sub">respiraciones/min</div></div>
+            <div class="metric"><div class="metric-top">Temperatura <svg viewBox="0 0 24 24" fill="none"><path d="M10 14.7V5a2 2 0 1 1 4 0v9.7a4 4 0 1 1-4 0Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 12v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="metric-value" id="mTemp">—</div><div class="metric-sub">grados Celsius</div></div>
+            <div class="metric"><div class="metric-top">SpO₂ <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-8-4.4-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.6-8 10-8 10Z" stroke="currentColor" stroke-width="1.5"/><path d="M4 12h4l2-3 3 6 2-3h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="metric-value" id="mSpo2">—</div><div class="metric-sub">saturación de oxígeno</div></div>
+          </div>
+        </section>
+
+        <section class="mini-panel" aria-labelledby="guide-title">
+          <div class="mini-header"><h3 id="guide-title">Principios de seguridad</h3><span>Siempre</span></div>
+          <div class="guide"><div class="guide-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div><strong>No esperar una puntuación</strong><p>El deterioro clínico o una preocupación importante requiere valoración aunque el formulario no genere alerta.</p></div></div>
+          <div class="guide"><div class="guide-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.6"/><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong>Descartar no es el objetivo</strong><p>Una evaluación sin señales marcadas no descarta infección grave ni sepsis.</p></div></div>
+          <div class="guide"><div class="guide-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong>Usar el protocolo local</strong><p>Activa la ruta institucional o los servicios de emergencia según la situación clínica.</p></div></div>
+        </section>
+      </aside>
     </div>
 
-  </div>
-
+    <footer class="footer">
+      <div><strong>SepsiSignal · prototipo de emprendimiento en salud digital.</strong><br>Versión educativa, no destinada al diagnóstico ni al tratamiento de pacientes reales.</div>
+      <div>Marco de referencia: <a href="https://www.nice.org.uk/guidance/ng253" target="_blank" rel="noopener noreferrer">NICE NG253</a> · <a href="https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines" target="_blank" rel="noopener noreferrer">Surviving Sepsis Campaign</a> · <a href="https://www.cdc.gov/sepsis/about/" target="_blank" rel="noopener noreferrer">CDC: Sepsis</a></div>
+    </footer>
+  </main>
 </div>
-<!-- ================= EPISODIOS ================= -->
-<div id="episodios" class="section">
-  <h2>Episodios</h2>
-<div id="featuredPodcast"></div>
-
-<div id="podcasts" class="grid"></div>
-</div>
-
-<!-- ================= SUBIR ================= -->
-<div id="subir" class="section">
-  <h2>Subir episodio</h2>
-
-  <input id="title" placeholder="Título"><br>
-  <input id="audioURL" placeholder="Link .mp3"><br>
-  <input id="imageURL" placeholder="Imagen"><br>
-  <input id="desc" placeholder="Descripción"><br>
-
-  <button onclick="addPodcast()">Subir episodio</button>
-</div>
-
-<!-- ================= NOSOTROS ================= -->
-<div id="nosotros" class="section">
-  <h2>¿Quiénes somos?</h2>
-
-  <p>
-  Somos estudiantes de medicina de tercer semestre que, dentro de la materia de emprendimiento, decidimos crear este podcast como una forma diferente de desarrollar una idea propia basada en lo que vivimos día a día.
-  </p>
-
-  <p>
-  Sabemos que este proyecto no nace realmente con el objetivo principal de generar dinero, sino como un espacio donde podamos compartir experiencias reales, lo que aprendemos en la carrera y también lo que muchas veces nadie explica cuando uno entra a estudiar medicina.
-  </p>
-
-  <p>
-  Queremos mostrar el lado real de esta carrera: el estrés, la presión, las dudas, pero también la motivación, el crecimiento personal y todo lo que se vive en el proceso. La idea es que cualquier estudiante del área de la salud que escuche este podcast pueda sentirse identificado y acompañado.
-  </p>
-
-  <h3>Misión</h3>
-  <p>
-  Crear un espacio cercano y auténtico donde estudiantes del área de la salud puedan encontrar apoyo académico y emocional, compartiendo experiencias reales de forma clara, sencilla y sin tanta formalidad.
-  </p>
-
-  <h3>Visión</h3>
-  <p>
-  Convertirnos en un punto de referencia entre estudiantes de medicina y carreras afines, no por ser perfectos, sino por ser reales, útiles y por aportar contenido que de verdad ayude a quienes están pasando por este mismo camino.
-  </p>
-</div>
-
-<!-- ================= COMUNIDAD ================= -->
-<div id="comunidad" class="section">
-
-  <h2 class="community-title">
-    Comunidad Entre Estudiantes
-  </h2>
-
-  <p class="community-sub">
-    Comparte opiniones, experiencias y consejos.
-  </p>
-
-  <!-- FORMULARIO -->
-  <div class="community-form">
-
-    <input
-    id="userName"
-    placeholder="Tu nombre">
-
-    <textarea
-    id="userMessage"
-    placeholder="Escribe tu opinión..."></textarea>
-
-    <button onclick="sendMessage()">
-      Publicar
-    </button>
-
-  </div>
-
-  <!-- MENSAJES -->
-  <div id="messages" class="messages-box"></div>
-
-</div>
-
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-
-const ADMIN_PASSWORD="12345admin";
-
-const firebaseConfig={
- apiKey:"AIzaSyDz5tYhKP1gX2UToItY0VarGLCJLoffjbg",
- authDomain:"entre-estudiantes.firebaseapp.com",
- projectId:"entre-estudiantes"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-
-function addPodcast(){
- const pass=prompt("Clave admin");
-
- if(pass!==ADMIN_PASSWORD){
-  alert("No autorizado");
-  return;
- }
-
- db.collection("podcasts").add({
-  title:title.value,
-  url:audioURL.value,
-  image:imageURL.value,
-  desc:desc.value,
-  time:Date.now()
- });
-}
-
-db.collection("podcasts").orderBy("time","desc")
-.onSnapshot(snapshot=>{
- podcasts.innerHTML="";
-let first = true;
- snapshot.forEach(doc=>{
-  const d=doc.data();
-
-  if(first){
-
-featuredPodcast.innerHTML = `
-
-<div class="featured-card">
-
-<img src="${d.image || 'https://via.placeholder.com/300'}">
-
-<div class="featured-info">
-
-<div class="featured-label">
-🔥 EPISODIO DESTACADO
-</div>
-
-<h2>
-${d.title}
-</h2>
-
-<p>
-${d.desc || ""}
-</p>
-
-<audio controls src="${d.url}"></audio>
-
-</div>
-
-</div>
-
-`;
-
-first = false;
-
-}else{
-
-podcasts.innerHTML+=`
-
-<div class="card">
-
-<img src="${d.image || 'https://via.placeholder.com/300'}">
-
-<h3>${d.title}</h3>
-
-<p class="pod-desc">
-${d.desc || ""}
-</p>
-
-<audio controls src="${d.url}"></audio>
-
-</div>
-
-`;
-
-}
-
-});
-
-});
-
-function show(section){
-
-document.querySelectorAll(".section")
-.forEach(s=>s.classList.remove("active"));
-
-document
-.getElementById(section)
-.classList.add("active");
-
-}
-/* ================= COMUNIDAD ================= */
-
-function sendMessage(){
-
-const name =
-document.getElementById("userName").value;
-
-const message =
-document.getElementById("userMessage").value;
-
-if(name === "" || message === ""){
-alert("Completa todos los campos");
-return;
-}
-
-db.collection("communityMessages").add({
-
-name:name,
-message:message,
-time:Date.now()
-
-});
-
-userName.value = "";
-userMessage.value = "";
-
-}
-
-/* ================= MOSTRAR MENSAJES ================= */
-
-db.collection("communityMessages")
-.orderBy("time","desc")
-.onSnapshot(snapshot=>{
-
-messages.innerHTML = "";
-
-snapshot.forEach(doc=>{
-
-const d = doc.data();
-
-messages.innerHTML += `
-
-<div class="message-card">
-
-<div class="message-name">
-${d.name}
-</div>
-
-<div class="message-text">
-${d.message}
-</div>
-
-</div>
-
-`;
-
-});
-
-});
-</script>
-    <script>
-
-/* ================= CONSTELLATION ================= */
-
-const canvas =
-document.getElementById("constellation");
-
-const ctx =
-canvas.getContext("2d");
-
-canvas.width =
-window.innerWidth;
-
-canvas.height =
-window.innerHeight;
-
-let points = [];
-
-for(let i=0;i<45;i++){
-
-points.push({
-
-x:Math.random()*canvas.width,
-
-y:Math.random()*canvas.height,
-
-vx:(Math.random()-.5)*0.4,
-
-vy:(Math.random()-.5)*0.4
-
-});
-
-}
-
-function drawConstellation(){
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-for(let i=0;i<points.length;i++){
-
-let p = points[i];
-
-p.x += p.vx;
-p.y += p.vy;
-
-if(
-p.x < 0 ||
-p.x > canvas.width
-)
-p.vx *= -1;
-
-if(
-p.y < 0 ||
-p.y > canvas.height
-)
-p.vy *= -1;
-
-for(let j=i+1;j<points.length;j++){
-
-let p2 = points[j];
-
-let dist =
-Math.hypot(
-p.x-p2.x,
-p.y-p2.y
-);
-
-if(dist < 140){
-
-ctx.beginPath();
-
-ctx.moveTo(p.x,p.y);
-
-ctx.lineTo(p2.x,p2.y);
-
-ctx.strokeStyle =
-`rgba(183,255,0,${
-1-dist/140
-})`;
-
-ctx.lineWidth = .5;
-
-ctx.stroke();
-
-}
-
-}
-
-}
-
-requestAnimationFrame(
-drawConstellation
-);
-
-}
-
-drawConstellation();
-
-window.addEventListener(
-"resize",
-()=>{
-
-canvas.width =
-window.innerWidth;
-
-canvas.height =
-window.innerHeight;
-
-}
-);
-
-</script>
-  <!-- ================= FEEDBACK ================= -->
-
-<div id="feedback" class="section">
-
-<div class="hero">
-
-<div class="hero-left">
-
-<div class="hero-text">
-
-<h1>
-
-TU
-<span>OPINIÓN</span>
-
-</h1>
-
-<p>
-
-Tu experiencia es importante
-para nosotros.
-
-Ayúdanos a mejorar
-Entre Estudiantes respondiendo
-nuestra encuesta oficial.
-
-</p>
-
-<a
-href="https://form.typeform.com/to/HY0zFApr"
-target="_blank">
-
-<button>
-
-Responder encuesta
-
-</button>
-
-</a>
-
-</div>
-
-</div>
-
-<div class="hero-logo">
-
-<img
-class="main-logo"
-src="https://i.ibb.co/cS061Qdz/logo.png">
-
-</div>
-
-</div>
-
-</div>
-  <script>
-
-/* ================= NAV HIDE ================= */
-
-let lastScroll = 0;
-
-const nav =
-document.querySelector(".nav");
-
-window.addEventListener(
-"scroll",
-()=>{
-
-const current =
-window.pageYOffset;
-
-if(current > lastScroll){
-
-nav.style.transform =
-"translateY(-100%)";
-
-}else{
-
-nav.style.transform =
-"translateY(0)";
-
-}
-
-lastScroll = current;
-
-}
-);
-
+(() => {
+  const form = document.getElementById('triageForm');
+  const resultCard = document.getElementById('resultCard');
+  const resultDynamic = document.getElementById('resultDynamic');
+  const toast = document.getElementById('toast');
+  let toastTimer;
+
+  const warningLabels = {
+    cyanosis: 'Coloración azulada, piel moteada o aspecto ceniciento reportado.',
+    rash: 'Erupción roja o morada que no palidece a la presión.',
+    urine: 'Disminución de la diuresis reportada.',
+    oxygen: 'Necesidad nueva o creciente de oxígeno.',
+    decline: 'Deterioro rápido o empeoramiento reciente.',
+    pain: 'Dolor extremo, malestar intenso o escalofríos importantes.',
+    immuno: 'Posible inmunosupresión: eleva la preocupación clínica.',
+    procedure: 'Procedimiento, cirugía o dispositivo reciente: considerar riesgo de infección.'
+  };
+
+  const val = id => document.getElementById(id).value;
+  const num = id => val(id) === '' ? null : Number(val(id));
+  const selected = name => document.querySelector(`input[name="${name}"]:checked`)?.value ?? null;
+  const checkedWarnings = () => [...document.querySelectorAll('input[name="warning"]:checked')].map(x => x.value);
+
+  function notify(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function validRange(id, min, max, label) {
+    const n = num(id);
+    if (n === null || !Number.isFinite(n) || n < min || n > max) {
+      document.getElementById(id).focus();
+      notify(`Revisa el campo «${label}» (${min}–${max}).`);
+      return false;
+    }
+    return true;
+  }
+
+  function updateMetrics() {
+    document.getElementById('mHr').textContent = val('hr') || '—';
+    document.getElementById('mRr').textContent = val('rr') || '—';
+    document.getElementById('mTemp').textContent = val('temp') ? `${Number(val('temp')).toFixed(1)}°` : '—';
+    document.getElementById('mSpo2').textContent = val('spo2') ? `${val('spo2')}%` : '—';
+  }
+  ['hr','rr','temp','spo2'].forEach(id => document.getElementById(id).addEventListener('input', updateMetrics));
+
+  function renderResult(result) {
+    resultCard.classList.add('has-result');
+    document.getElementById('resultDot').style.background = result.color === 'red' ? '#cc4652' : result.color === 'amber' ? '#e2a13c' : result.color === 'green' ? '#229c70' : '#8797a5';
+    document.getElementById('result-title').textContent = result.title;
+    document.getElementById('resultSummary').textContent = result.summary;
+    const box = document.getElementById('statusBox');
+    box.className = `result-status ${result.color}`;
+    document.getElementById('statusHeading').textContent = result.statusHeading;
+    document.getElementById('statusText').textContent = result.statusText;
+    const code = val('patientCode').trim() || 'No indicado';
+    const age = val('age') || '—';
+    const source = val('source') || 'No definido';
+    document.getElementById('reportDetails').textContent = `Registro: ${code} · Edad: ${age} años · Foco: ${source} · FC: ${val('hr')} lpm · FR: ${val('rr')}/min · Temperatura: ${Number(val('temp')).toFixed(1)} °C · PAS: ${val('sbp')} mmHg · SpO₂: ${val('spo2')}%`;
+    const list = document.getElementById('reasonList');
+    list.replaceChildren();
+    if (!result.reasons.length) {
+      const item = document.createElement('div'); item.className = 'reason';
+      item.innerHTML = '<span class="reason-mark green">✓</span><span>No se activaron las señales incluidas en este prototipo con los datos registrados.</span>';
+      list.appendChild(item);
+    } else {
+      result.reasons.forEach(reason => {
+        const item = document.createElement('div'); item.className = 'reason';
+        const mark = document.createElement('span'); mark.className = `reason-mark ${reason.kind || result.color}`; mark.textContent = reason.kind === 'amber' ? '!' : reason.kind === 'red' ? '!' : '•';
+        const text = document.createElement('span'); text.textContent = reason.text;
+        item.append(mark, text); list.appendChild(item);
+      });
+    }
+    const next = document.getElementById('nextStep');
+    next.replaceChildren();
+    const mark = document.createElement('span'); mark.className = `reason-mark ${result.color}`; mark.textContent = '→';
+    const text = document.createElement('span'); text.textContent = result.next;
+    next.append(mark, text);
+    resultDynamic.hidden = false;
+    document.getElementById('emptyState').hidden = true;
+    document.getElementById('printBtn').focus({preventScroll:true});
+    resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!validRange('age',16,120,'Edad')) return;
+    for (const [id,min,max,label] of [
+      ['hr',20,300,'Frecuencia cardíaca'],['rr',4,100,'Frecuencia respiratoria'],['temp',25,45,'Temperatura'],
+      ['sbp',30,300,'Presión sistólica'],['spo2',40,100,'Saturación de oxígeno']
+    ]) if (!validRange(id,min,max,label)) return;
+    if (selected('infection') === null) { document.getElementById('infectionYes').focus(); notify('Selecciona si existe sospecha de infección.'); return; }
+    if (!val('mental')) { document.getElementById('mental').focus(); notify('Selecciona el estado mental actual.'); return; }
+
+    const age=num('age'), hr=num('hr'), rr=num('rr'), temp=num('temp'), sbp=num('sbp'), spo2=num('spo2');
+    const infection=selected('infection'), pregnancy=val('pregnancy'), mental=val('mental'), warnings=checkedWarnings();
+    const reasons=[]; let critical=false, moderate=0;
+    const add=(text,kind='amber')=>reasons.push({text,kind});
+
+    // Regla demostrativa conservadora; no es NEWS2, qSOFA ni un instrumento validado.
+    if (sbp <= 90) {critical=true;add(`Presión sistólica ${sbp} mmHg: valor de alarma clínica importante.`,'red');}
+    else if (sbp <= 100) {moderate++;add(`Presión sistólica ${sbp} mmHg: presión baja que requiere interpretación clínica.`,'amber');}
+    if (rr >= 25) {critical=true;add(`Frecuencia respiratoria ${rr}/min: respiración marcadamente acelerada.`,'red');}
+    else if (rr >= 21) {moderate++;add(`Frecuencia respiratoria ${rr}/min: taquipnea que aumenta la preocupación.`,'amber');}
+    if (spo2 <= 91) {critical=true;add(`Saturación ${spo2}%: valor muy bajo en muchas personas; confirmar medición y valorar de inmediato.`,'red');}
+    else if (spo2 <= 94) {moderate++;add(`Saturación ${spo2}%: oxigenación reducida; interpretar según el valor basal y enfermedades previas.`,'amber');}
+    if (hr >= 130) {critical=true;add(`Frecuencia cardíaca ${hr}/min: taquicardia marcada.`,'red');}
+    else if (hr >= 100) {moderate++;add(`Frecuencia cardíaca ${hr}/min: taquicardia.`,'amber');}
+    if (temp < 35) {critical=true;add(`Temperatura ${temp.toFixed(1)} °C: hipotermia que requiere valoración inmediata.`,'red');}
+    else if (temp < 36 || temp >= 38) {moderate++;add(`Temperatura ${temp.toFixed(1)} °C: temperatura baja o fiebre.`,'amber');}
+    if (mental === 'confused') {critical=true;add('Confusión nueva o alteración de conciencia: señal de alarma de disfunción orgánica.','red');}
+    if (mental === 'unknown') {moderate++;add('Estado mental no evaluado: falta un dato clínico importante.','amber');}
+    if (warnings.includes('cyanosis')) {critical=true;add(warningLabels.cyanosis,'red');}
+    if (warnings.includes('rash')) {critical=true;add(warningLabels.rash,'red');}
+    if (warnings.includes('oxygen')) {moderate++;add(warningLabels.oxygen,'amber');}
+    if (warnings.includes('decline')) {critical=true;add(warningLabels.decline,'red');}
+    if (warnings.includes('urine')) {moderate++;add(warningLabels.urine,'amber');}
+    if (warnings.includes('pain')) {moderate++;add(warningLabels.pain,'amber');}
+    if (warnings.includes('immuno')) {moderate++;add(warningLabels.immuno,'amber');}
+    if (warnings.includes('procedure')) {moderate++;add(warningLabels.procedure,'amber');}
+    if (infection === 'yes') add(`Se registra sospecha o confirmación de infección${val('source') !== 'No definido' ? ` con posible foco ${val('source').toLowerCase()}` : ''}. La infección más signos de alarma requiere considerar sepsis y otras causas graves.`, 'neutral');
+    if (infection === 'unknown') {moderate++;add('La presencia de infección no está clara; completar la evaluación clínica.','amber');}
+
+    const notes = val('notes').trim();
+    if (notes) add(`Observaciones registradas: ${notes}`,'neutral');
+    if (num('dbp') !== null) add(`Presión diastólica registrada: ${num('dbp')} mmHg. Interpretar junto con la presión sistólica y el contexto clínico.`,'neutral');
+
+    let result;
+    if (pregnancy !== 'no') {
+      result = {
+        color:'red', title:'Ruta clínica especial',
+        summary:'Este prototipo no está diseñado para embarazo ni posparto reciente; no debe asignar un nivel de riesgo con su algoritmo general.',
+        statusHeading:'Requiere una vía de evaluación específica',
+        statusText:'Solicita valoración clínica urgente según el estado de la paciente y utiliza el protocolo específico de embarazo o posparto. Si hay signos de alarma, activa la atención de emergencia.',
+        reasons:[{text:'Embarazo o posparto reciente seleccionado: el algoritmo general no es aplicable.',kind:'red'},...reasons],
+        next:'No utilizar la clasificación de este prototipo. Seguir la ruta obstétrica/institucional y priorizar cualquier deterioro clínico.'
+      };
+    } else if (critical) {
+      result = {
+        color:'red', title:'Alerta clínica inmediata',
+        summary: infection === 'yes' ? 'Se registran posibles signos de deterioro en una persona con sospecha de infección. Se requiere evaluación urgente para descartar sepsis y otras emergencias.' : 'Se registran signos que pueden indicar deterioro clínico importante. El formulario no puede determinar la causa.',
+        statusHeading:'Prioridad: atención de emergencia',
+        statusText:'Activa el protocolo local de respuesta clínica/emergencia y solicita valoración inmediata. No esperes completar más datos ni repetir la puntuación para pedir ayuda.',
+        reasons,
+        next:'Evaluación médica inmediata, verificación de signos vitales y valoración de disfunción orgánica según el protocolo institucional. La sepsis es un diagnóstico clínico; esta página no la confirma.'
+      };
+    } else if (moderate >= 2 || (infection === 'yes' && moderate >= 1)) {
+      result = {
+        color:'amber', title:'Valoración prioritaria',
+        summary: infection === 'yes' ? 'La combinación de sospecha de infección y hallazgos registrados justifica una valoración clínica prioritaria. No equivale a un diagnóstico de sepsis.' : 'Hay hallazgos que merecen revisión clínica en contexto, aunque no se hayan activado las señales críticas de este prototipo.',
+        statusHeading:'Revisión clínica pronta',
+        statusText:'Comunica los hallazgos al profesional responsable, verifica las mediciones y considera la evolución, antecedentes y posibles causas alternativas.',
+        reasons,
+        next:'Revisión clínica prioritaria según el contexto y protocolo local. Repetir signos vitales y escalar si hay empeoramiento. Si aparece un signo de alarma, activar atención inmediata.'
+      };
+    } else if (moderate === 1) {
+      result = {
+        color:'amber', title:'Mantener vigilancia clínica',
+        summary:'Se registró al menos un hallazgo que requiere interpretación en contexto. Una sola señal puede ser importante, especialmente si el paciente está empeorando.',
+        statusHeading:'No ignorar el hallazgo',
+        statusText:'Confirma la medición, compara con el estado basal y valora al paciente de forma integral. Si existe sospecha de infección, la decisión no debe depender solo de esta página.',
+        reasons,
+        next:'Valoración por un profesional según el contexto. Reevaluar y escalar de inmediato ante deterioro o preocupación clínica.'
+      };
+    } else {
+      result = {
+        color:'green', title:'Sin alerta detectada',
+        summary:'Con los datos introducidos, esta lógica demostrativa no detectó las señales incluidas. Esto no descarta sepsis ni otra enfermedad grave.',
+        statusHeading:'Resultado limitado: no descarta sepsis',
+        statusText:'Mantén el juicio clínico. El paciente puede deteriorarse o presentar signos no incluidos aquí; la preocupación del equipo prevalece sobre un resultado sin alerta.',
+        reasons,
+        next:'Integrar historia clínica y exploración; seguir el protocolo local. Si persiste sospecha de infección grave, hay empeoramiento o preocupación clínica, solicitar valoración profesional sin demora.'
+      };
+    }
+    renderResult(result);
+    updateMetrics();
+  });
+
+  document.getElementById('demoBtn').addEventListener('click', () => {
+    document.getElementById('patientCode').value='DEMO-001';
+    document.getElementById('age').value='64';
+    document.getElementById('infectionYes').checked=true;
+    document.getElementById('source').value='Respiratorio';
+    document.getElementById('pregnancy').value='no';
+    document.getElementById('hr').value='132';
+    document.getElementById('rr').value='28';
+    document.getElementById('temp').value='39.2';
+    document.getElementById('sbp').value='86';
+    document.getElementById('dbp').value='54';
+    document.getElementById('spo2').value='90';
+    document.getElementById('mental').value='confused';
+    document.querySelectorAll('input[name="warning"]').forEach(x=>x.checked=false);
+    document.querySelector('input[name="warning"][value="decline"]').checked=true;
+    document.getElementById('notes').value='Caso ficticio para probar la interfaz; no corresponde a un paciente real.';
+    updateMetrics();
+    notify('Caso ficticio cargado. Pulsa «Analizar señales de alarma».');
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    setTimeout(() => {
+      resultCard.classList.remove('has-result');
+      resultDynamic.hidden=true;
+      document.getElementById('emptyState').hidden=false;
+      document.getElementById('resultDot').style.background='#aab7c2';
+      document.getElementById('result-title').textContent='Esperando evaluación';
+      document.getElementById('resultSummary').textContent='Completa los datos básicos y selecciona «Analizar señales de alarma» para generar una orientación inicial.';
+      updateMetrics();
+    },0);
+  });
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  function wireNav(id, action) {
+    const el = document.getElementById(id);
+    el.addEventListener('click', action);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); action(); } });
+  }
+  wireNav('navEval', () => document.getElementById('form-title').scrollIntoView({behavior:'smooth',block:'start'}));
+  wireNav('navReport', () => {
+    if (resultCard.classList.contains('has-result')) window.print();
+    else { document.getElementById('form-title').scrollIntoView({behavior:'smooth',block:'start'}); notify('Analiza los datos para generar un informe.'); }
+  });
+  wireNav('navGuide', () => document.getElementById('guide-title').scrollIntoView({behavior:'smooth',block:'center'}));
+})();
 </script>
 </body>
 </html>
