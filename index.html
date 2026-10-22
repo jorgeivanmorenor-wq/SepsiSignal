@@ -111,6 +111,100 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 @media(max-width:540px){.history-controls{width:100%}.history-search,.history-filter{flex:1;width:auto;min-width:120px}.history-controls span{width:100%}}
 .result-actions{grid-template-columns:1fr 1fr}.result-actions .result-action:nth-child(3){grid-column:1/-1}
 @media(max-width:540px){.result-actions{grid-template-columns:1fr}.result-actions .result-action:nth-child(3){grid-column:auto}}
+/* Visual refinement: calm clinical palette, clearer hierarchy, and more tactile controls */
+:root{
+  --navy:#143246;--navy-2:#20485a;--teal:#167b76;--teal-2:#e7f3f1;--teal-3:#c9e4e0;
+  --ink:#263b49;--muted:#657987;--paper:#f1f5f6;--line:#dce6e9;
+  --shadow:0 5px 20px rgba(27,53,69,.065);--r:15px;
+}
+body{background:radial-gradient(ellipse at 83% 0%,rgba(48,133,128,.065),transparent 31%),linear-gradient(145deg,#f3f7f8 0%,#edf3f5 100%)}
+.login-screen{background:#f7fafb}
+.login-brand{background:linear-gradient(145deg,#102b3e 0%,#173c51 54%,#145b5b 100%)}
+.login-brand:before{border-color:rgba(194,231,226,.17);box-shadow:0 0 0 38px rgba(194,231,226,.035),0 0 0 78px rgba(194,231,226,.023)}
+.login-brand:after{background:rgba(58,170,157,.2)}
+.brand-symbol{background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(105,200,189,.13));border-color:rgba(206,237,233,.28);border-radius:12px}
+.brand-rule{background:linear-gradient(90deg,rgba(185,224,218,.4),rgba(185,224,218,0))}
+.vital-graphic{border-color:rgba(194,231,226,.2);background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.025));box-shadow:0 14px 36px rgba(7,24,37,.12)}
+.login-panel{background:linear-gradient(135deg,#f9fbfc 0%,#edf4f5 100%)}
+.login-card{max-width:440px;padding:clamp(24px,3.4vw,38px);border:1px solid rgba(217,229,233,.9);border-radius:20px;background:rgba(255,255,255,.94);box-shadow:0 22px 60px rgba(21,50,67,.1)}
+.login-card h2{letter-spacing:-1px}
+.login-input{height:48px;border-radius:10px;background:#fff;font-size:13px;transition:border-color .16s,box-shadow .16s,background .16s}
+.login-input:focus{background:#fff}
+.btn{border-radius:9px;transition:background .16s,border-color .16s,color .16s,box-shadow .16s,transform .16s}
+.btn-primary{background:linear-gradient(135deg,#16847d,#126d69);box-shadow:0 4px 11px rgba(22,123,118,.16)}
+.btn-primary:hover{background:linear-gradient(135deg,#14756f,#105e5b);box-shadow:0 6px 15px rgba(22,123,118,.21);transform:translateY(-1px)}
+.btn-secondary:hover{box-shadow:0 3px 9px rgba(30,57,72,.06)}
+.app-shell{background:transparent}
+.sidebar{background:linear-gradient(180deg,#112e42 0%,#173c50 66%,#17464c 100%);box-shadow:5px 0 22px rgba(21,46,61,.055)}
+.brand .brand-symbol{background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(89,187,175,.18));border-color:rgba(206,237,233,.22)}
+.nav-link{border:1px solid transparent;transition:background .16s,border-color .16s,color .16s,transform .16s}
+.nav-link:hover{background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.06);transform:translateX(1px)}
+.nav-link.active{background:linear-gradient(100deg,rgba(116,202,192,.18),rgba(116,202,192,.08));border-color:rgba(158,221,213,.1);box-shadow:inset 3px 0 0 #8ad2c8}
+.topbar{background:rgba(255,255,255,.93);backdrop-filter:blur(14px);box-shadow:0 3px 14px rgba(30,54,69,.025)}
+.main-content{padding-top:31px}
+.page-heading{margin-bottom:23px}
+.page-heading h1{font-size:27px;letter-spacing:-.9px;color:#1b3749}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid #d4e7e4;border-radius:999px;background:rgba(231,243,241,.84);letter-spacing:1.35px}
+.panel,.result-card,.metric-panel,.dashboard-banner,.stat-card,.simple-card,.table-panel,.guide-card,.recent-panel,.completion-card{border-color:#dce6e9;box-shadow:0 5px 20px rgba(27,53,69,.065)}
+.panel,.result-card{border-radius:16px}
+.panel-header{padding:19px 21px;background:linear-gradient(180deg,#fff,#fcfdfd)}
+.panel-header h2{font-size:15px;color:#203e50}
+.panel-header p{font-size:11px}
+.form-content{padding:22px}
+.section-heading{font-size:12px;color:#294758}
+.section-index{width:25px;height:25px;border-radius:8px;background:linear-gradient(145deg,#e7f3f1,#f1f7f7);color:#236f6b}
+.form-label{font-size:11px;color:#344e5e}
+.input,.select,.textarea{min-height:42px;border-radius:9px;background:#fcfdfd;font-size:12px;padding:10px 12px;transition:border-color .16s,box-shadow .16s,background .16s}
+.input:focus,.select:focus,.textarea:focus{background:#fff;border-color:#62a8a1;box-shadow:0 0 0 3px rgba(22,123,118,.11)}
+.radio-option label{min-height:41px;border-radius:9px;font-size:11px;transition:background .15s,border-color .15s,color .15s}
+.radio-option input:checked+label{background:linear-gradient(135deg,#eaf5f3,#f4faf9);border-color:#72b1ab;box-shadow:inset 0 0 0 1px rgba(22,123,118,.06)}
+.radio-option input:focus-visible+label{outline:3px solid #90cfca;outline-offset:2px}
+.check-option{border-radius:9px;background:#fff;transition:border-color .15s,background .15s,box-shadow .15s}
+.check-option:hover{border-color:#a9cfca;background:#fbfefe;box-shadow:0 3px 10px rgba(27,83,82,.05)}
+.check-option:has(input:checked){border-color:#a6cfca;background:#f3f9f8}
+.check-option span{font-size:11px;color:#405867}
+.check-option small{font-size:10px}
+.form-actions .btn,.result-actions .btn{min-height:41px}
+.form-key{border:1px solid #e5edef;background:#f8fafb;border-radius:9px;font-size:11px}
+.completion-card{border-radius:12px;padding:15px 17px}
+.completion-copy strong{font-size:12px}
+.completion-copy p{font-size:11px}
+.completion-track{height:6px}
+.completion-track span{background:linear-gradient(90deg,#2d9b91,#17756f)}
+.result-top{background:linear-gradient(135deg,#f5f9fa,#f1f7f7);padding:20px 21px 18px}
+.result-title{font-size:21px;color:#1f3e50}
+.result-summary{font-size:11px}
+.result-body{padding:18px 21px 21px}
+.result-empty-mark{border-radius:12px;background:linear-gradient(145deg,#e8f4f2,#f5f9f9);color:#347b76}
+.status-box{border-radius:10px}
+.metric-panel{border-radius:13px;padding:17px}
+.metric{border-radius:9px;background:linear-gradient(145deg,#fbfdfd,#f7fafb)}
+.metric strong{font-size:20px;color:#23475a}
+.dashboard-banner{border-radius:15px;background:linear-gradient(115deg,#fff 0%,#fff 68%,#f1f8f7 100%);padding:24px 26px}
+.dashboard-banner h2{font-size:22px;color:#1d3d50}
+.stat-card{position:relative;overflow:hidden;border-radius:12px;padding:18px}
+.stat-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#51a89f,#d5ece8)}
+.stat-label{font-size:11px}
+.stat-value{color:#204559}
+.simple-card,.guide-card{border-radius:12px}
+.workflow-number{border-radius:8px;background:linear-gradient(145deg,#e7f3f1,#f3f8f7);color:#226d69}
+.table-panel,.recent-panel{border-radius:13px}
+th{background:#f6f9fa}
+tbody tr{transition:background .14s}
+tbody tr:hover{background:#f7fbfb}
+td{font-size:11px}
+.status-pill{border-radius:999px;padding:5px 9px}
+.history-search,.history-filter{min-height:36px;border-radius:8px;font-size:11px}
+.history-tools{background:#fbfcfc}
+.recent-row{transition:background .14s}
+.recent-row:hover{background:#f8fbfb}
+.review-dialog,.emergency-dialog{border-radius:17px}
+.dialog-head{background:linear-gradient(135deg,#f8fbfc,#f2f8f7)}
+.review-item{border-radius:9px}
+.toast{border-radius:10px;box-shadow:0 10px 30px rgba(14,34,49,.2)}
+@media(max-width:820px){.sidebar{box-shadow:0 4px 17px rgba(21,46,61,.08)}.main-content{padding-top:24px}}
+@media(max-width:540px){.login-card{padding:23px 20px;border-radius:16px}.page-heading h1{font-size:24px}.dashboard-banner{padding:19px}.panel-header{padding:15px}.form-content{padding:15px}.main-content{padding-top:22px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -516,8 +610,12 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
     }
     updateEmergencyDock();
   }
-  form.addEventListener('input',updateCompletion);
-  form.addEventListener('change',updateCompletion);
+  function handleFormEdit(){
+    if(latestReport)resetResult('Los datos cambiaron desde la última orientación. Revísalos y vuelve a confirmar antes de generar una nueva.');
+    updateCompletion();
+  }
+  form.addEventListener('input',handleFormEdit);
+  form.addEventListener('change',handleFormEdit);
   function updateMetrics(){
     byId('mHr').textContent=val('hr')||'—';byId('mRr').textContent=val('rr')||'—';byId('mTemp').textContent=val('temp')?Number(val('temp')).toFixed(1):'—';byId('mSpo2').textContent=val('spo2')||'—';
   }
@@ -673,10 +771,11 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
   byId('closeEmergencyBtn').addEventListener('click',()=>byId('emergencyDialog').close());
 
   function loadDemo(){
+    if(latestReport)resetResult('Se cargó un caso ficticio nuevo. Revísalo antes de generar otra orientación.');
     byId('patientCode').value='DEMO-001';byId('age').value='64';byId('infectionYes').checked=true;byId('source').value='Respiratorio';byId('pregnancy').value='no';byId('hr').value='132';byId('rr').value='28';byId('temp').value='39.2';byId('sbp').value='86';byId('dbp').value='54';byId('spo2').value='90';byId('mental').value='confused';document.querySelectorAll('input[name="warning"]').forEach(x=>x.checked=false);document.querySelector('input[name="warning"][value="decline"]').checked=true;byId('notes').value='Caso ficticio para demostrar el funcionamiento de la interfaz.';updateMetrics();updateCompletion();notify('Caso ficticio cargado. Revisa los datos antes de generar orientación.');
   }
   byId('loadDemo').addEventListener('click',loadDemo);byId('loadDemoTop').addEventListener('click',loadDemo);
-  function resetResult(){byId('resultDynamic').hidden=true;byId('emptyState').hidden=false;byId('trendBlock').hidden=true;byId('trendRows').replaceChildren();byId('resultDot').style.background='#7c8e99';byId('resultTitle').textContent='Pendiente de evaluación';byId('resultSummary').textContent='Completa los datos principales para organizar los hallazgos registrados.';latestReport=null;updateMetrics()}
+  function resetResult(message='Completa los datos principales para organizar los hallazgos registrados.'){byId('resultDynamic').hidden=true;byId('emptyState').hidden=false;byId('trendBlock').hidden=true;byId('trendRows').replaceChildren();byId('resultDot').style.background='#7c8e99';byId('resultTitle').textContent='Pendiente de evaluación';byId('resultSummary').textContent=message;latestReport=null;updateMetrics()}
   byId('resetBtn').addEventListener('click',()=>setTimeout(()=>{validationAttempted=false;pendingReviewData=null;resetResult();updateCompletion();notify('Formulario limpio. Puedes iniciar una nueva evaluación.')},0));
   function composeReportText(){
     if(!latestReport)return '';
@@ -819,4 +918,5 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
 </script>
 </body>
 </html>
+
 
